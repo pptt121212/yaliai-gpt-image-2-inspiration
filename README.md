@@ -36,7 +36,7 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 | Inspiration search | No | Case links, images, categories, prompt references |
 | Prompt rewriting | No | Production-ready GPT-image2 prompt |
 | Template guidance | No | Best Yali template and size recommendation |
-| Yali image generation | Yes, `YALIAI_API_KEY` | Queued task ID and result URL |
+| Yali image generation/editing | Yes, `YALIAI_API_KEY` | Queued task ID and result URL |
 | Codex-native generation | No Yali key | Host-native generated image |
 | PPT workflow routing | Depends on generation path | Slide plan, slide prompts, images, HTML preview, PPTX |
 
@@ -58,7 +58,7 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 - Search the public Yali inspiration library with no API key.
 - Match user ideas to Yali categories and generation templates.
 - Rewrite vague ideas into concrete GPT-image2 prompts.
-- Use Yali's Free Image generation API when `YALIAI_API_KEY` is configured.
+- Use Yali's Free Image generation/editing API when `YALIAI_API_KEY` is configured.
 - Use Codex-native image generation when running in Codex and native image tools are available.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
 - Keep API keys out of repositories and generated examples.

@@ -36,7 +36,9 @@ https://www.yaliai.com/free-image/
 
 Never include a real key in public examples, repositories, generated docs, NPM packages, or skill files.
 
-This API is the only path that returns Yali task IDs, uses Yali credits, and runs through the Yali website queue. Host-native image generation in tools such as Codex is separate and must not be represented as a Yali API task.
+This API is the only path that returns Yali task IDs, uses Yali credits, and runs through the Yali website queue. Host-native image generation or editing in tools such as Codex is separate and must not be represented as a Yali API task.
+
+Yali editing uses the same queued generation endpoint. Send `action:"edit"` and provide 1-2 `reference_images`. There is no separate public edit endpoint.
 
 ## Public Inspiration Endpoints
 
@@ -111,7 +113,7 @@ When a template has `sizeOptions`, choose the best size for the target platform 
 
 ## Image Generation
 
-Generation uses the same Yali AI queue, credit, template, and result system as the website.
+Generation and editing use the same Yali AI queue, credit, template, reference-image, and result system as the website.
 
 ### Start Generation
 
@@ -133,11 +135,34 @@ curl -X POST "https://www.yaliai.com/wp-json/yali/v1/free-image/api/generate" \
 Common body fields:
 
 - `prompt`: required image prompt
+- `action`: optional, `generate` or `edit`; defaults to generation behavior when omitted
 - `template_key`: optional template, such as `product-hero`, `website-banner`, `infographic`, `video-cover`
 - `quality`: `low`, `medium`, or `high`
 - `size_key`: for example `1024x1024`
 - `output_format`: `jpeg`, `png`, or `webp`
+- `output_compression`: 0-100, for JPEG/WEBP
+- `reference_images`: optional array of up to 2 image payloads for generation references; required for `action:"edit"`
+- `mask_image`: optional single image payload when supported by the website configuration
 - `prompt_context`: optional object with fields such as `style`, `text`, `scene`, `subject`, `composition`, `lighting`, `palette`, `negative`
+
+Reference image payload formats:
+
+```json
+{
+  "reference_images": [
+    { "image_url": "data:image/png;base64,..." },
+    { "mime_type": "image/jpeg", "base64": "..." }
+  ]
+}
+```
+
+Rules:
+
+- Supported reference formats: PNG, JPEG, WEBP.
+- Maximum reference images: 2.
+- Maximum reference image size: 5MB each.
+- Editing requires at least one reference image.
+- Reference images add credit cost in the same way as the website.
 
 Response includes:
 
@@ -146,6 +171,15 @@ Response includes:
 - `queue_position`
 - `cost`
 - `credit_summary`
+
+### Edit With Reference Image
+
+```bash
+curl -X POST "https://www.yaliai.com/wp-json/yali/v1/free-image/api/generate" \
+  -H "Authorization: Bearer $YALIAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{"action":"edit","prompt":"保留主体和构图，将背景替换为浅色科技感工作台，保持真实光影","quality":"medium","size_key":"1024x1024","reference_images":[{"image_url":"data:image/png;base64,..."}]}'
+```
 
 ### Status
 

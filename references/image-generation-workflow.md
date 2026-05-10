@@ -8,35 +8,64 @@ For non-Codex tools, do not assume native image generation exists. Claude Code, 
 
 Keep the boundary between Yali API generation and host-native generation explicit.
 
+## Skill-First Execution Order
+
+For any image generation or editing request, follow this order before calling a tool:
+
+1. Classify the task: new image, edit, batch, or PPT slide image.
+2. Map the request to Yali categories and, when useful, inspiration search terms.
+3. Check template fit when the output type is explicit, such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
+4. Build a compact prompt spec with exact visible text, size/aspect, layout, constraints, and negative details.
+5. Choose the provider path: Yali queued API, host-native generation/editing, or prompt-only.
+6. Execute through the chosen provider, then report the result in that provider's terms.
+
+This skill is the prompt/template/provider router. Host-native tools produce or edit pixels; Yali inspiration and templates guide what should be generated.
+
 ## Provider Decision
 
 Choose one path:
 
-1. **Yali queued API**: use when the user wants Yali website-consistent generation, templates, account credits, queue behavior, task IDs, or has `YALIAI_API_KEY`.
-2. **Host-native generation**: use when the current AI tool already provides native image generation, such as Codex image generation, and the user does not require Yali queue/account behavior.
+1. **Yali queued API**: use when the user wants Yali website-consistent generation or editing, templates, reference-image support, account credits, queue behavior, task IDs, or has `YALIAI_API_KEY`.
+2. **Host-native generation or editing**: use when the current AI tool already provides native image generation/editing, such as Codex image generation, and the user does not require Yali queue/account behavior.
 3. **Prompt-only**: use when no generation path is available, the user wants a prompt, or key/setup is missing.
 
 Do not blur these paths:
 
 - Public Yali inspiration search never requires a key.
-- Yali image generation always requires `YALIAI_API_KEY`.
-- Codex-native generation does not use Yali credits, Yali task IDs, Yali templates as server presets, or Yali result URLs.
+- Yali image generation and editing always require `YALIAI_API_KEY`.
+- Codex-native generation/editing does not use Yali credits, Yali task IDs, Yali templates as server presets, or Yali result URLs.
 - Other AI coding tools may install this skill but may not have native image generation. In those tools, generation should use the Yali API or the tool's own documented image feature if present.
+- Yali editing uses the same queued `/free-image/api/generate` endpoint with `action:"edit"` and `reference_images`; do not invent a separate edit endpoint.
 
 ## Tool-Specific Paths
 
-- **Codex**: may use Codex-native image generation without `YALIAI_API_KEY` when the user wants local/host-native generation. Use Yali inspiration, categories, cases, and visible template guidance to build the prompt, then run the host-native image tool. Do not fabricate Yali task metadata.
-- **Yali API from any tool**: use when the user wants Yali website behavior, templates, queue, credits, task IDs, or shared API behavior. Requires `Authorization: Bearer $YALIAI_API_KEY`.
-- **Claude Code / OpenCode / Gemini CLI / shared agents**: the skill can still search Yali inspiration and write prompts. For actual generation, use Yali API unless that host explicitly provides its own image-generation tool.
+- **Codex**: may use Codex-native image generation or editing without `YALIAI_API_KEY` when the user wants local/host-native output. Use Yali inspiration, categories, cases, and visible template guidance to build the prompt or edit spec, then run the host-native image tool. Do not fabricate Yali task metadata.
+- **Yali API from any tool**: use when the user wants Yali website behavior, templates, reference images, queue, credits, task IDs, or shared API behavior. Requires `Authorization: Bearer $YALIAI_API_KEY`.
+- **Claude Code / OpenCode / Gemini CLI / shared agents**: the skill can still search Yali inspiration and write prompts. For actual generation or editing, use Yali API when `YALIAI_API_KEY` is available; otherwise use that host's documented image tool if present, or return a prompt/edit spec.
 - **No generation backend available**: return the final prompt, matched categories/templates, and setup instructions instead of pretending generation can run.
 
 ## Intent Decision
 
 - If the user provides an input image or says edit, retouch, inpaint, mask, replace, remove, translate, localize, or change only one part: treat it as an **edit**.
 - If the user needs many prompts, many assets, or variations across a set: treat it as **batch generation**.
+- If the user asks for a WeChat official account cover, Xiaohongshu cover, video cover, article hero image, poster, banner, ad, product visual, UI mockup, infographic, or other social/marketing image: treat it as **new generation** and first use Yali categories/templates to shape the prompt before choosing a provider.
 - Otherwise treat it as **new generation**.
 
 For edits, list invariants explicitly: what must stay unchanged, what may change, and any exact text that must remain verbatim.
+
+## Editing Workflow
+
+Use this for retouching, replacing objects, removing elements, changing style, localizing text in an image, compositing multiple inputs, or transforming an existing reference image.
+
+1. Identify the edit target and any supporting reference images.
+2. State invariants: subject identity, composition, text, logo, product shape, colors, perspective, lighting, and areas that must not change.
+3. State the allowed change precisely.
+4. Choose provider:
+   - Yali queued API with `action:"edit"` when the user wants website/API behavior or provides `YALIAI_API_KEY`.
+   - Codex-native or host-native edit when the host exposes image editing and the user does not require Yali task IDs/credits.
+   - Prompt-only edit spec when no edit backend is available.
+5. For Yali queued editing, pass 1-2 images in `reference_images`. Each image is an object containing either `image_url:"data:image/...;base64,..."` or `mime_type` plus `base64`. Supported formats are PNG, JPEG, and WEBP. Keep each image under 5MB. Editing requires at least one reference image.
+6. Do not convert an edit into a new-generation task unless the user accepts a full regeneration.
 
 ## Prompt Spec
 
@@ -66,6 +95,8 @@ Rules:
 
 - Structure the prompt as scene/background -> subject -> details -> constraints -> output intent.
 - Use exact quoted text for in-image text and specify placement and typography when relevant.
+- For social-media covers and article hero images, include platform, aspect ratio, title text, subtitle text if any, safe text area, visual hierarchy, and mobile-list readability.
+- For edits, include `Edit target`, `Must preserve`, `Allowed changes`, and `Avoid changing`.
 - Do not invent new creative requirements. You may add implied production constraints, such as negative space for a banner.
 - For photorealism, use camera, lens, framing, lighting, and real material language.
 - For UI, diagrams, logos, and infographics, describe hierarchy, layout, labels, and intended audience.
@@ -74,6 +105,12 @@ Rules:
 ## Template Use
 
 Templates are optional accelerators, not the default path.
+
+For clear platform cover requests, prefer these live templates when available:
+
+- WeChat official account cover: `wechat-cover`
+- Xiaohongshu note cover: `xiaohongshu-cover`
+- YouTube, Bilibili, or short-video cover: `video-cover`
 
 Use a Yali template only when the user's request clearly matches a template from:
 
@@ -87,6 +124,7 @@ When using the Yali API with a template:
 - Use `fixedSize` when present.
 - Otherwise choose the best `sizeOptions` value.
 - Put user-specific subject, style, text, and constraints in `prompt` and optional `prompt_context`.
+- Include `reference_images` when the user provides reference images for generation or editing. Use `action:"edit"` for editing; use `action:"generate"` or omit `action` for new generation with style/subject references.
 
 When using host-native generation:
 
@@ -119,4 +157,8 @@ For prompt-only work, return the final prompt and any reference cases.
 
 For Yali API generation, return `task_id`, status, queue position, cost/credit summary when available, and result URL when complete.
 
+For Yali API editing, return the same queued task fields. Do not describe it as a separate edit endpoint; it is a queued image task with `action:"edit"` and reference images.
+
 For host-native generation, return or display the generated image according to the host's normal image workflow and include the final prompt/spec used. Do not fabricate a Yali task ID or result URL.
+
+For host-native editing, return or display the edited image according to the host's normal image workflow and include the edit spec used.

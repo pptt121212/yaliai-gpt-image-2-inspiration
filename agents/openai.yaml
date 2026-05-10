@@ -1,3 +1,3 @@
 display_name: Yali AI GPT-Image2 Inspiration
-short_description: Search Yali AI inspiration cases, write GPT-image2 prompts, generate through Yali API or native host tools, and route PPT requests.
-default_prompt: Use the Yali AI inspiration library to find references, choose categories/templates, create production-ready GPT-image2 prompts, or route PPT/slide requests to the dedicated PPT workflow.
+short_description: Search Yali inspiration, choose categories/templates, write prompts, route image generation/editing, and support PPT visual workflows.
+default_prompt: Use the Yali AI inspiration library to find prompt/image references, choose categories and templates, create production-ready GPT-image2 prompts for covers, posters, images, edits, or slides, choose Yali API vs host-native generation/editing vs prompt-only, or route PPT requests to the dedicated PPT workflow.

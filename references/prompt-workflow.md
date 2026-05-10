@@ -24,12 +24,22 @@ When the user provides an image idea, first map it to one or more Yali categorie
 
 Use multiple categories when the request naturally crosses domains, such as a product poster with typography, or a UI screenshot with social media context.
 
+Capability mapping:
+
+- Inspiration library search: use categories, search terms, random cases, and case details.
+- Template selection: use live `/free-image/api/templates` when output type is explicit.
+- Prompt writing: adapt cases and categories into an original prompt for the user's subject.
+- New image generation: hand off to `image-generation-workflow.md` after category/template matching.
+- Image editing: hand off to `image-generation-workflow.md`; use edit invariants and Yali queued API `action:"edit"` with 1-2 reference images when using Yali.
+- PPT generation: hand off to `references/ppt-generation/README.md` and support slide image prompts.
+
 ## Generation Taxonomy
 
 Use these buckets internally when a prompt needs more precise production handling. Map them back to one or more Yali categories for search and classification:
 
 - `photorealistic-natural`: candid/editorial photography, portraits, lifestyle scenes
 - `product-mockup`: product, packaging, e-commerce, catalog imagery
+- `ads-marketing`: WeChat official account covers, Xiaohongshu covers, video covers, article hero images, posters, banners, campaign concepts, and ad creatives
 - `ui-mockup`: app, website, dashboard, interface concepts
 - `infographic-diagram`: knowledge cards, diagrams, structured explainers
 - `logo-brand`: logo, brand mark, visual identity exploration
@@ -51,7 +61,7 @@ The taxonomy is for agent reasoning. Do not expose it as if it were the website'
 Use public API searches in this order:
 
 1. Search direct subject words.
-2. Search output type words, such as poster, product, UI, portrait, infographic, logo, storyboard.
+2. Search output type words, such as WeChat cover, Xiaohongshu cover, video cover, article cover, poster, product, UI, portrait, infographic, logo, storyboard.
 3. Search style words, such as realistic, cinematic, watercolor, pixel, 3D, hand-drawn, luxury.
 4. If results are weak, use category-filtered random cases for browsing.
 
@@ -120,6 +130,8 @@ When the request is not clearly template-shaped, omit `template_key` and express
 Use `product-hero` when the user wants product photography, e-commerce hero images, packaging shots, or product detail visuals.
 
 Use `website-banner` when the user wants a commercial poster, campaign visual, banner, landing image, or advertising image.
+
+Use `wechat-cover` when the user asks for a WeChat official account cover, public account article cover, 公众号封面, 微信公众号首图, or similar Chinese content-operations cover image.
 
 Use `ui-mockup` when the user wants an app screen, website page, dashboard, SaaS UI, or interface concept.
 
