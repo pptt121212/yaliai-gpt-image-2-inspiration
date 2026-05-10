@@ -145,7 +145,10 @@ Use this authenticated endpoint only when executing through Yali:
 
 - Put the useful result first: prompt, case list, or task result.
 - Use this report shape when generation/editing was requested: `Provider`, `Search`, `Reference cases`, `Template`, `Prompt/edit spec`, `Result`.
-- After generation, provide an accessible image location. For Yali remote results, download the image to a stable local path when filesystem access exists, then report both the local path and original URL. If the host supports Markdown previews, use `![alt](local-absolute-path-or-url)`; otherwise follow the host's native preview behavior.
+- For Codex-native image generation/editing, image outputs are normally saved as PNG/JPEG/WEBP files under `$CODEX_HOME/generated_images/<run-id>/`. After the image tool finishes, locate the generated local absolute path and show it in the final response with Markdown image syntax: `![short specific image description](/absolute/path.png)`.
+- For Yali API image generation/editing, read the result image URL from `response.url`, falling back to `response.assets[0].url`. When filesystem access exists, download the image to a stable local path, show the local file with Markdown image syntax: `![short specific image description](/absolute/path.png)`, and also report the original remote URL.
+- For other host-native or third-party generation paths, get the accessible output location returned by that provider. Prefer a local absolute path with Markdown image syntax: `![short specific image description](/absolute/path.png)`; use a remote URL only when no local file is available.
+- Markdown image descriptions must be short and specific, naming the subject, purpose, or visible content, such as `red security tools web UI`, `WeChat article cover`, or `product hero image`.
 - Include case IDs and links when using references.
 - Keep prompts concrete: subject, composition, style, materials, lighting, text requirements, size/aspect ratio, constraints, and negatives.
 - If the user's request is vague, present 2-3 direction options before generating.
