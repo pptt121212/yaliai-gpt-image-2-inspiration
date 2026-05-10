@@ -1,6 +1,6 @@
 ---
 name: yaliai-gpt-image-2-inspiration
-description: Use when the user asks to generate, create, make, design, draw, render, produce, find, write, improve, or edit images/prompts with GPT-image2/Yali AI guidance. Trigger for concrete visual tasks even when the user does not mention Yali, inspiration, templates, or prompts: website UI, app UI, SaaS/dashboard screens, landing page visuals, product shots, e-commerce main images, covers, posters, banners, ads, infographics, diagrams, logos/brand visuals, storyboards, social media images, WeChat official account covers, Xiaohongshu covers, video covers, PPT/slide visuals, batch variants, and image-to-image edits such as retouching, inpainting, masking, background replacement, object removal/replacement, text localization, style transfer, compositing, or reference-image generation. Also use when the user asks to search/browse/copy/compare image prompts, inspiration cases, example images, reference images, categories, templates, styles, or prompt libraries. This skill should run before host-native image tools so the agent searches Yali examples/templates when useful, classifies the task, writes the prompt/edit spec, and chooses Yali API vs host-native generation/editing vs prompt-only.
+description: Use when the user asks to generate, create, make, design, draw, render, produce, find, write, improve, or edit images/prompts with GPT-image2/Yali AI guidance. Trigger for concrete visual tasks even when the user does not mention Yali, inspiration, templates, or prompts: website UI, app UI, SaaS/dashboard screens, landing page visuals, product shots, e-commerce main images, covers, posters, banners, ads, infographics, diagrams, logos/brand visuals, storyboards, social media images, WeChat official account covers, Xiaohongshu covers, video covers, PPT/slide visuals, batch variants, and image-to-image edits such as retouching, inpainting, masking, background replacement, object removal/replacement, text localization, style transfer, compositing, or reference-image generation. Also use when the user asks to search/browse/copy/compare image prompts, inspiration cases, example images, reference images, categories, templates, styles, or prompt libraries. This skill must run before host-native image tools so the agent searches Yali examples/templates when useful, classifies the task, writes the prompt/edit spec, preflights provider/key/reference-image requirements, and chooses Yali API vs host-native generation/editing vs prompt-only.
 ---
 
 # Yali AI GPT-Image2 Inspiration
@@ -29,6 +29,28 @@ Do not wait for the user to ask for "prompt inspiration." For broad creative gen
 
 Boundary: do not use this skill for ordinary frontend or application coding when the user only wants code changes. Use it for coding tasks only when the user asks for visual inspiration, generated mockup images, image assets, prompts, or slide visuals to support that coding work.
 
+## Use Inspiration As References
+
+Yali inspiration cases and templates help shape the result; they do not replace the user's request. Treat retrieved cases as visual references for structure, composition, platform conventions, style, and prompt patterns.
+
+- Do not copy a case prompt unless the user explicitly asks to reuse that exact prompt.
+- When cases match well, adapt their useful structure into a new prompt for the user's subject.
+- When cases are weak, empty, or mismatched, do not force them into the result. Use category matching, live templates, and visual reasoning to write an original prompt.
+- Preserve the user's explicit subject, visible text, platform, aspect ratio, edit invariants, and constraints over anything found in the inspiration library.
+- Use template keys only for clearly matching output types. If no template clearly fits, omit `template_key` and express the needed layout, style, and constraints directly in the prompt.
+
+## Operating Loop
+
+Follow this loop for every triggered task. Do not skip steps unless the skip condition is explicit.
+
+1. **Classify**: decide one intent: prompt/case search, prompt writing, template-shaped generation, new image generation, image editing, batch generation, or PPT visuals.
+2. **Retrieve**: for prompt writing or broad generation, search Yali inspiration first. Use 2-4 concise queries. Skip only if the user says not to search, no network/API access exists, the edit is purely mechanical, or the user gives a complete prompt and explicitly asks to generate directly.
+3. **Match**: map to Yali categories and check live templates when the output type is explicit. Do not force a template for ambiguous creative work.
+4. **Craft**: write an original prompt or edit spec. Preserve exact user text, visible layout requirements, aspect/size, constraints, and edit invariants.
+5. **Preflight**: before any generation/edit call, decide provider and verify required inputs: key, reference images, template size, quality, and polling/result behavior.
+6. **Execute or fallback**: run Yali queued API, host-native generation/editing, PPT branch, or prompt-only fallback. Never pretend a generation occurred.
+7. **Report**: state provider, search queries/cases if used, template if used, final prompt/edit spec, and task/result fields for the chosen provider.
+
 ## Capability Router
 
 Use this routing before calling any image-generation or image-editing tool:
@@ -43,6 +65,30 @@ Use this routing before calling any image-generation or image-editing tool:
 | Generate PPT, slides, deck, presentation, or multi-slide report | Route to the PPT branch and support slide visual prompts/images | `references/ppt-generation/README.md` | Dedicated PPT workflow plus Codex-native/Yali API/prompt-only image path |
 
 For image generation or editing requests, do not skip directly to a host-native image tool. First use this skill to decide category, template fit, provider path, size/aspect, exact text, and constraints.
+
+## Provider Modes
+
+Choose exactly one mode before execution:
+
+| Mode | Use when | Key requirement | Output |
+| --- | --- | --- | --- |
+| Public retrieval | searching examples, prompts, categories, case details, or templates | none | case/template data and adapted prompt guidance |
+| Yali queued API | user wants Yali website behavior, templates, credits, queue, task IDs, result URLs, or provides `YALIAI_API_KEY` | `YALIAI_API_KEY` | `task_id`, queue/status/result metadata, image URL when complete |
+| Host-native generation/editing | current host explicitly provides native image tools and user does not require Yali queue/account behavior | no Yali key | host-native image result; no Yali task ID |
+| Prompt-only | no generation backend/key is available, or user asks only for prompts | none | final prompt/edit spec plus setup guidance |
+| PPT branch | user asks for PPT/slides/deck/presentation | depends on image provider | dedicated PPT workflow artifacts and slide visual prompts |
+
+Never mix provider semantics. A host-native image result is not a Yali task. A Yali template key is sent only to the Yali API; for host-native generation, translate the template's visible constraints into the prompt.
+
+## Preflight Rules
+
+- Before Yali generation/editing, check for `YALIAI_API_KEY`. If missing or invalid, direct the user to `https://www.yaliai.com/free-image/skill/`; do not write keys to files.
+- Before Yali editing, require 1-2 `reference_images`; use `action:"edit"`. If no reference image exists, ask for it or return an edit spec.
+- Before reference-image generation, allow up to 2 reference images; use `action:"generate"` or omit `action` on the Yali path.
+- Before template-shaped Yali generation, fetch live templates and use `fixedSize` or the best `sizeOptions` value.
+- Before host-native generation/editing, still complete retrieval, category/template reasoning, and prompt/edit spec. Do not send Yali-only fields such as `template_key`.
+- For ambiguous, expensive, or high-polish tasks, present 1-3 directions or ask one concise question. For precise "generate now" requests, proceed after the required preflight.
+- Do not reinstall skills, modify `.env`, overwrite user files, or save private keys unless the user explicitly asks for setup.
 
 ## Endpoint Map
 
@@ -68,8 +114,11 @@ Use this authenticated endpoint only when executing through Yali:
    - create PPT, slides, decks, presentations, or multi-slide reports
 3. For inspiration search, use the public API. No API key is needed.
 4. For PPT-like requests, read `references/ppt-generation/README.md` and route to the dedicated PPT workflow. Use this skill only for visual inspiration, slide image prompts, and image generation support.
-5. For prompt work or broad image generation, search matching cases first, then write an original prompt adapted to the user's subject. Use multiple queries if needed: subject, output type, style, platform, and category.
+5. For prompt work or broad image generation, search matching cases first, then write an original prompt adapted to the user's subject. Use multiple queries if needed: subject, output type, style, platform, and category. If the user provides a complete production prompt and says to generate directly, skip search and proceed to provider preflight.
 6. For clear output types, fetch live templates before generation. Use a template only when it clearly fits; otherwise keep template as `none`.
+   - If the selected template fits the output type, send only the clean user-facing prompt plus `template_key`; do not paste or invent hidden template internals.
+   - If no template fits, omit `template_key` and express the needed layout, aspect, text, and style directly in the prompt.
+   - If search results do not match the user's intent, say they were weak or mismatched, use the closest structural lessons only if useful, and write an original prompt from the user's request.
 7. For image editing, only search inspiration if it helps the style or target result. Always define `Edit target`, `Must preserve`, `Allowed changes`, and reference-image payload rules.
 8. For image generation or editing, read `references/image-generation-workflow.md` before calling a tool. Preserve exact visible text, platform size, edit invariants, and user constraints.
 9. For actual image generation, choose the execution path before writing commands:
@@ -94,6 +143,8 @@ Use this authenticated endpoint only when executing through Yali:
 ## Output Defaults
 
 - Put the useful result first: prompt, case list, or task result.
+- Use this report shape when generation/editing was requested: `Provider`, `Search`, `Reference cases`, `Template`, `Prompt/edit spec`, `Result`.
+- After generation, provide an accessible image location. For Yali remote results, download the image to a stable local path when filesystem access exists, then report both the local path and original URL. If the host supports Markdown previews, use `![alt](local-absolute-path-or-url)`; otherwise follow the host's native preview behavior.
 - Include case IDs and links when using references.
 - Keep prompts concrete: subject, composition, style, materials, lighting, text requirements, size/aspect ratio, constraints, and negatives.
 - If the user's request is vague, present 2-3 direction options before generating.

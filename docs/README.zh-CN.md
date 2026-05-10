@@ -18,6 +18,8 @@
 ```text
 请按照下面的说明安装 Yali AI GPT-Image2 Inspiration Skill：
 https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
+
+如果本条消息中包含我的 Yali API Key，请安装 Skill 后继续按照安装指南把它配置为当前用户运行环境中的 YALIAI_API_KEY，并验证当前 AI 编程工具可以读取。不要写入 SKILL.md、README、references、package.json、项目源码或任何可能提交到 Git 的文件。
 ```
 
 如果本地已有 `npx`，也可以直接执行：
@@ -43,6 +45,8 @@ export YALIAI_API_KEY="your_key_here"
 ```
 
 登录后在 [Yali Skill/API 配置页](https://www.yaliai.com/free-image/skill/) 获取。
+
+如果把安装说明和 Key 一起发给 AI 编程工具，工具应根据系统写入 `~/.bashrc`、`~/.zshrc`、Windows 当前用户环境变量，或该工具支持的本地 secrets / runtime 环境，并验证 `YALIAI_API_KEY` 可读。
 
 ## 示例
 

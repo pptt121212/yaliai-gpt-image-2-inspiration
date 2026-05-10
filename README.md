@@ -11,6 +11,8 @@ Recommended agent-first install: paste this into your AI coding tool and let it 
 ```text
 Please install Yali AI GPT-Image2 Inspiration Skill by following:
 https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
+
+If I include a Yali API key in this message, install the Skill and configure the key as YALIAI_API_KEY in the current user's local runtime environment by following the install guide. Verify that the current shell or target runtime can read YALIAI_API_KEY. Do not write the key into SKILL.md, README.md, references, package.json, project source files, or any file likely to be committed to Git.
 ```
 
 If you already have `npx` and want to install directly:
@@ -57,7 +59,7 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 
 - Search the public Yali inspiration library with no API key.
 - Match user ideas to Yali categories and generation templates.
-- Rewrite vague ideas into concrete GPT-image2 prompts.
+- Rewrite vague ideas into concrete GPT-image2 prompts. Inspiration cases are references for structure, style, and platform conventions; the final prompt should be original and adapted to the user's request.
 - Use Yali's Free Image generation/editing API when `YALIAI_API_KEY` is configured.
 - Use Codex-native image generation when running in Codex and native image tools are available.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
@@ -118,6 +120,8 @@ export YALIAI_API_KEY="your_key_here"
 ```
 
 Get your key after login at [Yali Skill/API setup](https://www.yaliai.com/free-image/skill/).
+
+When asking an AI coding tool to configure the key, tell it to use the variable name `YALIAI_API_KEY` and follow [docs/install.md](docs/install.md). The agent should write it to the current user's shell profile, Windows user environment, service environment, or the tool's documented local secrets/runtime environment, then verify that `YALIAI_API_KEY` is readable. Do not put real keys in repositories, package files, README files, Skill files, or shared prompts.
 
 ## Image Generation Workflow
 

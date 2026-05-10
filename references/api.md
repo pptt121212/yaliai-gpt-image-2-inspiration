@@ -60,6 +60,7 @@ Searches titles, categories, prompts, and keywords.
 
 Important fields:
 
+- Search results are under `response.items`. Do not read `response.results`.
 - `case_id`
 - `slug`
 - `title`
@@ -96,6 +97,27 @@ GET /free-image/api/templates
 ```
 
 Returns image generation templates and current generation capabilities.
+
+Response shape:
+
+```json
+{
+  "success": true,
+  "templatePresets": {
+    "ui-mockup": {
+      "label": "UI Mockup / 线框图",
+      "description": "...",
+      "hint": "...",
+      "fixedSize": "",
+      "sizeOptions": []
+    }
+  },
+  "defaultTemplateKey": "none",
+  "capabilities": {}
+}
+```
+
+Important: live templates are under `response.templatePresets`. Do not read template keys from the top level of the response.
 
 Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the fallback template list in `prompt-workflow.md`, because the website may add or revise templates. Do not force a template for broad or ambiguous creative requests.
 
@@ -134,16 +156,18 @@ curl -X POST "https://www.yaliai.com/wp-json/yali/v1/free-image/api/generate" \
 
 Common body fields:
 
-- `prompt`: required image prompt
-- `action`: optional, `generate` or `edit`; defaults to generation behavior when omitted
-- `template_key`: optional template, such as `product-hero`, `website-banner`, `infographic`, `video-cover`
-- `quality`: `low`, `medium`, or `high`
-- `size_key`: for example `1024x1024`
-- `output_format`: `jpeg`, `png`, or `webp`
-- `output_compression`: 0-100, for JPEG/WEBP
-- `reference_images`: optional array of up to 2 image payloads for generation references; required for `action:"edit"`
-- `mask_image`: optional single image payload when supported by the website configuration
-- `prompt_context`: optional object with fields such as `style`, `text`, `scene`, `subject`, `composition`, `lighting`, `palette`, `negative`
+| Field | Type | Required | Values / shape | Notes |
+| --- | --- | --- | --- | --- |
+| `prompt` | string | yes | any clear image prompt | Required for generation and editing. |
+| `action` | string | no | `generate` or `edit` | Defaults to generation behavior when omitted. Use `edit` only with `reference_images`. |
+| `template_key` | string | no | live template key such as `product-hero`, `website-banner`, `ui-mockup`, `infographic`, `video-cover` | Fetch `/free-image/api/templates` first; do not invent keys. |
+| `quality` | string | no | `low`, `medium`, `high` | Use `medium` by default; use `high` for text/UI/product/detail-critical work. |
+| `size_key` | string | no | e.g. `1024x1024` or a live template size | Prefer `fixedSize` or best `sizeOptions` from live templates. |
+| `output_format` | string | no | `jpeg`, `png`, `webp` | Defaults to website/API behavior when omitted. |
+| `output_compression` | integer | no | `0`-`100` | Used for JPEG/WEBP only. |
+| `reference_images` | array | conditional | up to 2 image payloads | Required for `action:"edit"`; optional for reference-guided generation. |
+| `mask_image` | object | no | one image payload | Optional when supported by website configuration. |
+| `prompt_context` | object | no | `style`, `text`, `scene`, `subject`, `composition`, `lighting`, `palette`, `negative` | Optional structured context; keep the main prompt self-contained. |
 
 Reference image payload formats:
 
@@ -164,13 +188,26 @@ Rules:
 - Editing requires at least one reference image.
 - Reference images add credit cost in the same way as the website.
 
-Response includes:
+Start response includes top-level task metadata:
 
 - `task_id`
 - `status`
 - `queue_position`
 - `cost`
 - `credit_summary`
+
+Minimal start response shape:
+
+```json
+{
+  "success": true,
+  "task_id": "free_img_xxx",
+  "status": "queued_or_processing",
+  "queue_position": 0,
+  "cost": 3,
+  "credit_summary": {}
+}
+```
 
 ### Edit With Reference Image
 
@@ -190,6 +227,31 @@ Authorization: Bearer $YALIAI_API_KEY
 
 Poll every 2-3 seconds. Polling too quickly may return `rate_limited`.
 
+Status response shape:
+
+```json
+{
+  "success": true,
+  "task": {
+    "task_id": "free_img_xxx",
+    "status": "queued_or_processing_or_completed_or_failed",
+    "assets": [],
+    "asset_count": 0,
+    "queue_position": 0,
+    "error_message": ""
+  }
+}
+```
+
+Important status paths:
+
+- Task status: `response.task.status`
+- Task id: `response.task.task_id`
+- Queue position: `response.task.queue_position`
+- Error message: `response.task.error_message`
+
+Do not assume status is always at `response.status`; the status endpoint nests it under `task.status`.
+
 ### Result
 
 ```http
@@ -198,6 +260,59 @@ Authorization: Bearer $YALIAI_API_KEY
 ```
 
 Only call after the task is `completed`.
+
+Result response shape:
+
+```json
+{
+  "success": true,
+  "url": "https://www.yaliai.com/wp-content/uploads/yali-free-image-tasks/free_img_xxx.png",
+  "assets": [
+    {
+      "index": 1,
+      "url": "https://www.yaliai.com/wp-content/uploads/yali-free-image-tasks/free_img_xxx.png",
+      "filename": "free_img_xxx.png",
+      "output_format": "png",
+      "response_id": "resp_xxx",
+      "item_id": "ig_xxx"
+    }
+  ],
+  "prompt": "original prompt",
+  "revised_prompt": "provider revised prompt when available",
+  "size_key": "1024x1024",
+  "output_format": "png",
+  "credit_summary": {},
+  "cost": 3,
+  "completed_at": "ISO or site timestamp",
+  "expires_at": "ISO or site timestamp"
+}
+```
+
+Important result paths:
+
+- Primary image URL: `response.url`
+- Fallback image URL: `response.assets[0].url`
+- Asset filename: `response.assets[0].filename`
+- Original prompt: `response.prompt`
+- Revised prompt: `response.revised_prompt`
+- Size: `response.size_key`
+- Output format: `response.output_format`
+
+After a Yali task completes, report the image URL and, when filesystem access exists, download it to a stable local path for the current workspace/session. Different AI coding tools preview files differently; the stable requirement is that the agent provides the local path and original URL.
+
+For hosts that support Markdown image previews, this format is recommended:
+
+```md
+![Yali API result](https://www.yaliai.com/wp-content/uploads/yali-free-image-tasks/free_img_xxx.png)
+```
+
+For hosts that reliably preview local absolute paths, prefer the downloaded local file:
+
+```md
+![Yali API result](/absolute/path/to/yali-result.png)
+```
+
+Do not assume Markdown is the only valid preview mechanism. Use the host's native preview behavior when available.
 
 ## Rate And Queue Behavior
 

@@ -2,6 +2,19 @@
 
 Use Yali prompt examples, image examples, categories, and templates as a reference system, not as text to copy blindly. The final prompt should be original and adapted to the user's subject.
 
+## Reference Use Rules
+
+Do not behave like a template copier. Use Yali cases and templates as production references:
+
+1. Understand the user's requested asset.
+2. Search Yali cases/templates when useful.
+3. Judge whether the retrieved cases match the request.
+4. Adapt useful structure, layout, style, or platform constraints.
+5. Write a new prompt that satisfies the user's request.
+6. Continue with generation/editing only after provider preflight.
+
+The user's request has priority over inspiration-library wording. Cases and templates improve the result; they do not replace the user's intent.
+
 ## Category-First Matching
 
 When the user provides an image idea, first map it to one or more Yali categories. Current public categories include:
@@ -78,6 +91,20 @@ Use 2-4 short searches rather than one long query. Combine:
 
 When search results are weak, search the broader output type first, then adapt the visual structure to the user's subject.
 
+If all searches are weak or empty:
+
+- Do not stop unless the user only asked to browse existing cases.
+- Use the category recipe and template list to classify the task.
+- If a live template clearly fits, use that `template_key` and write an original prompt from the user's request.
+- If no template fits, omit `template_key` and write the best original prompt using the prompt construction checklist.
+- In the report, state that search results were weak or empty and that the final prompt was generated from the user's request plus category/template reasoning.
+
+If search results exist but do not match the request:
+
+- Do not force irrelevant cases into the prompt.
+- Keep only transferable structure, such as "mobile-safe large title", "dashboard card hierarchy", or "16:9 slide diagram layout".
+- Prefer the user's subject, visible text, platform, aspect ratio, and constraints over the retrieved case content.
+
 ## Task Recipes
 
 Use these recipes to convert natural user wording into categories, search queries, template checks, and prompt constraints.
@@ -114,6 +141,21 @@ Build prompts with these blocks:
 For Chinese users, write the final prompt in Chinese unless they ask otherwise.
 
 For generation, edits, or batches, see `image-generation-workflow.md` for the full compact spec format, provider decision, size guidance, and quality rules.
+
+## Prompt Craft Checklist
+
+Use this checklist after category/search matching and before generation. Keep it concise; do not turn every request into a large template.
+
+- **Exact text**: quote every visible string that must appear in the image. Preserve user-supplied Chinese or brand copy verbatim.
+- **Canvas before subject**: for UI, posters, covers, infographics, diagrams, and slides, state aspect ratio/layout before visual detail.
+- **UI as product spec**: for website/app/dashboard mockups, include product context, screen type, navigation, cards/tables/forms/charts, sample labels, spacing, and hierarchy.
+- **Commercial hierarchy**: for posters, covers, banners, and ads, specify title area, focal subject, supporting copy, CTA/safe area when relevant, and mobile readability.
+- **Diagram grammar**: for infographics and technical diagrams, define zones, nodes, arrows, legends, labels, and visual semantics instead of only saying "make a diagram."
+- **Editing invariants**: for edits, always write what must stay unchanged, what may change, and what must be avoided.
+- **Reference use**: when using Yali cases, adapt structure and constraints; do not copy the case prompt verbatim unless the user explicitly asks.
+- **Negative line**: add a short `Avoid:` line when the request risks generic, cluttered, garbled text, fake UI, or over-stylized output.
+
+Ask at most one concise clarification when a missing detail blocks the result. Otherwise choose sensible defaults from the matched category/template and proceed.
 
 ## Template Selection
 

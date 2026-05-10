@@ -12,19 +12,41 @@ Keep the boundary between Yali API generation and host-native generation explici
 
 ## Skill-First Execution Order
 
-For any image generation or editing request, follow this order before calling a tool:
+For any image generation or editing request, follow this order before calling a tool. Treat it as mandatory runbook logic, not optional advice:
 
 1. Classify the task: new image, edit, batch, or PPT slide image.
 2. Map the request to Yali categories and inspiration search terms.
-3. Search Yali examples by default for broad generation, prompt writing, templates, style matching, and PPT visual work. Skip only if the user forbids search, network/API access is unavailable, or the task is a narrow mechanical edit.
+3. Search Yali examples by default for broad generation, prompt writing, templates, style matching, and PPT visual work. Skip only if the user forbids search, network/API access is unavailable, the task is a narrow mechanical edit, or the user gives a complete prompt and explicitly asks to generate directly.
 4. Check template fit when the output type is explicit, such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
 5. Build a compact prompt spec with reference cases, exact visible text, size/aspect, layout, constraints, and negative details.
-6. Choose the provider path: Yali queued API, host-native generation/editing, or prompt-only.
-7. Execute through the chosen provider, then report the result in that provider's terms.
+6. Run provider preflight: key, reference images, template size, quality, polling behavior, and fallback.
+7. Choose the provider path: Yali queued API, host-native generation/editing, or prompt-only.
+8. Execute through the chosen provider, then report the result in that provider's terms.
 
 This skill is the prompt/template/provider router. Host-native tools produce or edit pixels; Yali inspiration and templates guide what should be generated.
 
 Important: using Codex-native or another host-native generator does not remove the retrieval step. The Yali search/template work still supplies the category, visual references, and prompt spec; only the final pixel generation changes provider.
+
+## Agent Judgment Boundary
+
+The agent has room to make visual-production decisions when API retrieval is incomplete, weak, or mismatched. Use that freedom only inside the user's stated goal and this skill's provider/API boundaries.
+
+Allowed:
+
+- Rewrite the final prompt from the user's request instead of copying a retrieved case.
+- Ignore irrelevant search results after noting that they did not fit.
+- Use a live template only for its matching output type, size, and server-side preset behavior.
+- Omit `template_key` when no template clearly fits.
+- Choose sensible defaults for style, composition, quality, and size when the user gave enough direction to proceed.
+- Ask one concise clarification only when a missing detail blocks execution or changes the expected artifact substantially.
+
+Not allowed:
+
+- Claim a Yali case/template was used when it was only loosely related or not used.
+- Treat weak search results as mandatory content.
+- Invent template keys, hidden template prompts, API fields, task IDs, or result URLs.
+- Replace the user's explicit subject, platform, visible text, or edit invariant with retrieved-case content.
+- Pretend generation/editing happened when no provider path succeeded.
 
 ## Trigger Words To Respect
 
@@ -36,7 +58,7 @@ When these words appear, do not answer with generic advice. Build a prompt/edit 
 
 ## Provider Decision
 
-Choose one path:
+Choose exactly one path:
 
 1. **Yali queued API**: use when the user wants Yali website-consistent generation or editing, templates, reference-image support, account credits, queue behavior, task IDs, or has `YALIAI_API_KEY`.
 2. **Host-native generation or editing**: use when the current AI tool already provides native image generation/editing, such as Codex image generation, and the user does not require Yali queue/account behavior.
@@ -51,12 +73,28 @@ Do not blur these paths:
 - Other AI coding tools may install this skill but may not have native image generation. In those tools, generation should use the Yali API or the tool's own documented image feature if present.
 - Yali editing uses the same queued `/free-image/api/generate` endpoint with `action:"edit"` and `reference_images`; do not invent a separate edit endpoint.
 
+## Preflight Checklist
+
+Run this checklist before any generation/editing call:
+
+1. **Intent**: generation, edit, batch, or PPT slide image is explicit.
+2. **Retrieval**: searches and case details are complete, or the reason for skipping search is explicit.
+3. **Template**: live templates were fetched for clear template-shaped tasks; selected `template_key` or `none` is explicit.
+4. **Provider**: one provider path is selected; do not mix Yali and host-native semantics.
+5. **Yali key**: `YALIAI_API_KEY` exists for Yali calls. If missing/invalid, stop the Yali call and point to `https://www.yaliai.com/free-image/skill/`.
+6. **Reference images**: Yali editing has 1-2 reference images; reference-image generation has at most 2. Each image is PNG/JPEG/WEBP and under 5MB when using the Yali API.
+7. **Prompt/edit spec**: exact visible text, size/aspect, quality, constraints, and edit invariants are present.
+8. **Preview plan**: know where the final image will be accessible. For Yali remote results, download to a stable local path when filesystem access exists; use the host's native preview mechanism when available.
+9. **Side effects**: do not create `.env`, persist keys, reinstall skills, overwrite skill folders, or modify unrelated files unless the user explicitly asks.
+
+If any required preflight item fails, return the prompt/edit spec plus the concrete missing item. Do not silently fall back from Yali API to host-native generation if the user specifically requested Yali queue/account behavior.
+
 ## Retrieval Before Execution
 
 Before generation, gather enough reference context to avoid a generic prompt:
 
 1. Read `prompt-workflow.md` for category and task recipe matching.
-2. Run public inspiration search using 2-4 concise queries when network access exists.
+2. Run public inspiration search using 2-4 concise queries when network access exists, unless the user provided a complete production prompt and explicitly asked for direct generation.
 3. Fetch case details for the best 1-3 cases when excerpts are not enough.
 4. Fetch live templates when the output type has a likely template.
 5. Write an original prompt spec. Do not copy a case prompt verbatim unless the user explicitly asks to reuse it.
@@ -199,3 +237,42 @@ For Yali API editing, return the same queued task fields. Do not describe it as 
 For host-native generation, return or display the generated image according to the host's normal image workflow and include the final prompt/spec used. Do not fabricate a Yali task ID or result URL.
 
 For host-native editing, return or display the edited image according to the host's normal image workflow and include the edit spec used.
+
+After generation, always report where the image is accessible:
+
+- For Yali API: report the original `response.url` and, when filesystem access exists, download it to a stable local path and report that path.
+- For host-native generation: report the host-generated local path or normal host result handle.
+- For prompt-only: state that no image file was generated.
+
+For hosts that support Markdown image previews, this format is recommended:
+
+```md
+![descriptive alt text](/absolute/local/path.png)
+![descriptive alt text](https://example.com/remote-image.png)
+```
+
+Do not assume Markdown is required in every AI coding tool. Use the host's native preview behavior when it exists. In Codex-like desktop hosts, local absolute paths are the most reliable for preview. For Yali API results, download `response.url` or `response.assets[0].url` to a stable local path when possible.
+
+Yali API field paths to use:
+
+- Start response task id: `response.task_id`
+- Start response status: `response.status`
+- Status response status: `response.task.status`
+- Status response queue position: `response.task.queue_position`
+- Status response error: `response.task.error_message`
+- Result primary image URL: `response.url`
+- Result fallback image URL: `response.assets[0].url`
+- Result revised prompt: `response.revised_prompt`
+
+Use this compact report shape for generation/editing work:
+
+```text
+Provider: <Yali queued API | host-native | prompt-only | PPT branch>
+Search: <queries used, or skipped with reason>
+Reference cases: <case_id/title links, or none>
+Template: <template_key or none>
+Prompt/edit spec: <final spec or summary>
+Result: <task_id/status/result URL, host output, or missing setup>
+```
+
+For Yali API errors, surface the error code and useful fields such as `get_key_url`, `recommended_env`, `task_id`, or `queue_position`. Do not hide missing-key, active-task, rate-limit, or insufficient-credit errors behind generic wording.
