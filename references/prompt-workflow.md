@@ -1,6 +1,6 @@
 # Prompt And Category Workflow
 
-Use the Yali AI inspiration library as a reference system, not as text to copy blindly. The final prompt should be original and adapted to the user's subject.
+Use Yali prompt examples, image examples, categories, and templates as a reference system, not as text to copy blindly. The final prompt should be original and adapted to the user's subject.
 
 ## Category-First Matching
 
@@ -26,12 +26,12 @@ Use multiple categories when the request naturally crosses domains, such as a pr
 
 Capability mapping:
 
-- Inspiration library search: use categories, search terms, random cases, and case details.
-- Template selection: use live `/free-image/api/templates` when output type is explicit.
-- Prompt writing: adapt cases and categories into an original prompt for the user's subject.
-- New image generation: hand off to `image-generation-workflow.md` after category/template matching.
-- Image editing: hand off to `image-generation-workflow.md`; use edit invariants and Yali queued API `action:"edit"` with 1-2 reference images when using Yali.
-- PPT generation: hand off to `references/ppt-generation/README.md` and support slide image prompts.
+- Find examples/prompts: use categories, search terms, random cases, and case details.
+- Choose templates: use live `/free-image/api/templates` when output type is explicit.
+- Write prompts: adapt cases and categories into an original prompt for the user's subject.
+- Generate images: hand off to `image-generation-workflow.md` after category/template matching.
+- Edit images: hand off to `image-generation-workflow.md`; use edit invariants and Yali queued API `action:"edit"` with 1-2 reference images when using Yali.
+- Generate PPT: hand off to `references/ppt-generation/README.md` and support slide image prompts.
 
 ## Generation Taxonomy
 

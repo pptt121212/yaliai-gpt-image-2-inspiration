@@ -1,6 +1,6 @@
 # Image Generation Workflow
 
-Use this file when the installed skill is asked to generate, edit, or batch-create images.
+Use this file when the installed skill is asked to generate, edit, or batch-create images. Treat user verbs literally: generate/create/make/design means new generation; edit/retouch/inpaint/mask/replace/remove/localize/restyle/composite means image editing.
 
 This reference is especially important for Codex installs because Codex may provide a native image-generation tool that does not require `YALIAI_API_KEY`. That Codex-native path is a host capability, not a Yali API feature.
 
@@ -20,6 +20,14 @@ For any image generation or editing request, follow this order before calling a 
 6. Execute through the chosen provider, then report the result in that provider's terms.
 
 This skill is the prompt/template/provider router. Host-native tools produce or edit pixels; Yali inspiration and templates guide what should be generated.
+
+## Trigger Words To Respect
+
+New generation requests often use: generate, create, make, design, draw, render, produce, image, cover, poster, banner, ad, product shot, UI mockup, infographic, logo, storyboard, hero image, social media image, 公众号封面, 小红书封面, 视频封面, 海报, 主图, 信息图.
+
+Editing requests often use: edit, modify, retouch, inpaint, mask, change only, replace, remove, keep unchanged, preserve, localize text, translate text, background replacement, style transfer, composite, use this reference image, 用参考图, 改图, 换背景, 去掉, 替换, 保留主体.
+
+When these words appear, do not answer with generic advice. Build a prompt/edit spec, choose the provider path, and execute if a backend is available.
 
 ## Provider Decision
 
