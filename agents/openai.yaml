@@ -1,3 +1,7 @@
-display_name: Yali AI GPT-Image2 Inspiration
-short_description: Generate/edit images, search Yali examples, choose templates, write prompts, and route PPT visuals.
-default_prompt: Use Yali/GPT-image2 guidance before visual work. For image generation, editing, UI mockups, covers, posters, products, infographics, logos, storyboards, social images, prompts, templates, reference-image tasks, batches, or PPT visuals: classify the task, search Yali examples/templates when useful, write a production-ready prompt or edit spec, preflight key/reference/provider requirements, then use Yali API, host-native generation/editing, PPT routing, or prompt-only fallback and report the chosen path.
+interface:
+  display_name: "Yali AI GPT-Image2 Inspiration"
+  short_description: "Search Yali examples and guide image workflows"
+  default_prompt: "Use $yaliai-gpt-image-2-inspiration to search Yali examples/templates, write a prompt or edit spec, then choose Yali API, Codex-native generation, PPT routing, or prompt-only output."
+
+policy:
+  allow_implicit_invocation: true
