@@ -13,13 +13,31 @@ The skill helps AI coding tools:
 
 ## Install
 
-After the NPM package is published:
+Recommended universal install through the open `skills` CLI:
+
+```bash
+npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code codex --global --yes --copy
+```
+
+Codex only:
+
+```bash
+npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent codex --global --yes --copy
+```
+
+Claude Code only:
+
+```bash
+npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code --global --yes --copy
+```
+
+Alternative NPM package installer:
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex
 ```
 
-Install targets:
+NPM installer targets:
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install all
@@ -29,6 +47,8 @@ npx @yaliai/gpt-image-2-inspiration install opencode
 npx @yaliai/gpt-image-2-inspiration install gemini
 npx @yaliai/gpt-image-2-inspiration install agents
 ```
+
+The universal `skills add` command is the recommended path for users who already use Agent Skills across tools. The package installer remains available as a short fallback for installing this single skill from NPM.
 
 ## API Key
 
