@@ -6,11 +6,20 @@ Yali AI includes a 10,000+ curated prompt inspiration library with real image ex
 
 ## Quick Start
 
-Install the Skill, then ask your coding agent for image prompt inspiration, image generation, or PPT slide generation:
+Recommended agent-first install: paste this into your AI coding tool and let it choose the right path for Codex, Claude Code, OpenCode, Gemini, or a manual GitHub copy:
+
+```text
+Please install Yali AI GPT-Image2 Inspiration Skill by following:
+https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
+```
+
+If you already have `npx` and want to install directly:
 
 ```bash
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code codex --global --yes --copy
 ```
+
+Full install guide: [docs/install.md](docs/install.md)
 
 Example prompts:
 
@@ -56,7 +65,13 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 
 ## Install Options
 
-Recommended universal install through the open `skills` CLI:
+Recommended: use the agent-first guide so the current environment can choose between the `skills` CLI, this package's NPM installer, or a no-NPM GitHub copy:
+
+```text
+https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
+```
+
+Install through the open `skills` CLI when `npx` is available:
 
 ```bash
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code codex --global --yes --copy
@@ -68,7 +83,7 @@ Codex only:
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent codex --global --yes --copy
 ```
 
-NPM fallback installer:
+Yali NPM fallback installer:
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex
@@ -81,6 +96,17 @@ npx @yaliai/gpt-image-2-inspiration install all
 npx @yaliai/gpt-image-2-inspiration install claude-code
 npx @yaliai/gpt-image-2-inspiration install opencode
 npx @yaliai/gpt-image-2-inspiration install gemini
+```
+
+No Node/NPM required path:
+
+```bash
+git clone https://github.com/pptt121212/yaliai-gpt-image-2-inspiration.git
+mkdir -p ~/.codex/skills/yaliai-gpt-image-2-inspiration
+cp -R yaliai-gpt-image-2-inspiration/SKILL.md \
+      yaliai-gpt-image-2-inspiration/agents \
+      yaliai-gpt-image-2-inspiration/references \
+      ~/.codex/skills/yaliai-gpt-image-2-inspiration/
 ```
 
 ## API Key

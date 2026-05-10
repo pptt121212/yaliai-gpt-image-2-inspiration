@@ -13,15 +13,26 @@
 
 ## 安装
 
+推荐把这句话发给你的 AI 编程工具，让它根据当前环境选择 Codex、Claude Code、OpenCode、Gemini 或无 NPM 的 GitHub 复制路径：
+
+```text
+请按照下面的说明安装 Yali AI GPT-Image2 Inspiration Skill：
+https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
+```
+
+如果本地已有 `npx`，也可以直接执行：
+
 ```bash
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code codex --global --yes --copy
 ```
 
-NPM 备用安装：
+NPM 备用安装。这里的 `codex` 是安装目标，不是安装另一个软件：
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex
 ```
+
+没有 Node/NPM 时，可以从 GitHub 手动复制 `SKILL.md`、`agents/`、`references/` 到对应工具的技能目录。完整说明见 [安装指南](install.md)。
 
 ## API Key
 
