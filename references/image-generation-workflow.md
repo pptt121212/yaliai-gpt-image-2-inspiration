@@ -2,6 +2,8 @@
 
 Use this file when the installed skill is asked to generate, edit, or batch-create images. Treat user verbs literally: generate/create/make/design means new generation; edit/retouch/inpaint/mask/replace/remove/localize/restyle/composite means image editing.
 
+Do not route ordinary frontend or application coding work here unless the user asks for generated visuals, prompt inspiration, mockup images, image assets, or slide visuals.
+
 This reference is especially important for Codex installs because Codex may provide a native image-generation tool that does not require `YALIAI_API_KEY`. That Codex-native path is a host capability, not a Yali API feature.
 
 For non-Codex tools, do not assume native image generation exists. Claude Code, OpenCode, Gemini CLI, or other agents may install this same skill, but actual image generation must use either the Yali queued API with `YALIAI_API_KEY` or that tool's own documented image-generation capability if it exists.
@@ -13,13 +15,16 @@ Keep the boundary between Yali API generation and host-native generation explici
 For any image generation or editing request, follow this order before calling a tool:
 
 1. Classify the task: new image, edit, batch, or PPT slide image.
-2. Map the request to Yali categories and, when useful, inspiration search terms.
-3. Check template fit when the output type is explicit, such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
-4. Build a compact prompt spec with exact visible text, size/aspect, layout, constraints, and negative details.
-5. Choose the provider path: Yali queued API, host-native generation/editing, or prompt-only.
-6. Execute through the chosen provider, then report the result in that provider's terms.
+2. Map the request to Yali categories and inspiration search terms.
+3. Search Yali examples by default for broad generation, prompt writing, templates, style matching, and PPT visual work. Skip only if the user forbids search, network/API access is unavailable, or the task is a narrow mechanical edit.
+4. Check template fit when the output type is explicit, such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
+5. Build a compact prompt spec with reference cases, exact visible text, size/aspect, layout, constraints, and negative details.
+6. Choose the provider path: Yali queued API, host-native generation/editing, or prompt-only.
+7. Execute through the chosen provider, then report the result in that provider's terms.
 
 This skill is the prompt/template/provider router. Host-native tools produce or edit pixels; Yali inspiration and templates guide what should be generated.
+
+Important: using Codex-native or another host-native generator does not remove the retrieval step. The Yali search/template work still supplies the category, visual references, and prompt spec; only the final pixel generation changes provider.
 
 ## Trigger Words To Respect
 
@@ -45,6 +50,20 @@ Do not blur these paths:
 - Other AI coding tools may install this skill but may not have native image generation. In those tools, generation should use the Yali API or the tool's own documented image feature if present.
 - Yali editing uses the same queued `/free-image/api/generate` endpoint with `action:"edit"` and `reference_images`; do not invent a separate edit endpoint.
 
+## Retrieval Before Execution
+
+Before generation, gather enough reference context to avoid a generic prompt:
+
+1. Read `prompt-workflow.md` for category and task recipe matching.
+2. Run public inspiration search using 2-4 concise queries when network access exists.
+3. Fetch case details for the best 1-3 cases when excerpts are not enough.
+4. Fetch live templates when the output type has a likely template.
+5. Write an original prompt spec. Do not copy a case prompt verbatim unless the user explicitly asks to reuse it.
+
+For batch generation, run retrieval once per batch theme, then produce per-item prompt specs from that shared structure.
+
+For editing, retrieval is optional and style-driven. If the user says "remove this object" or "change only the background," prioritize invariants and edit precision over browsing examples.
+
 ## Tool-Specific Paths
 
 - **Codex**: may use Codex-native image generation or editing without `YALIAI_API_KEY` when the user wants local/host-native output. Use Yali inspiration, categories, cases, and visible template guidance to build the prompt or edit spec, then run the host-native image tool. Do not fabricate Yali task metadata.
@@ -60,6 +79,15 @@ Do not blur these paths:
 - Otherwise treat it as **new generation**.
 
 For edits, list invariants explicitly: what must stay unchanged, what may change, and any exact text that must remain verbatim.
+
+## Capability-Specific Execution Notes
+
+- **Prompt search only**: return 3-8 relevant cases with `case_id`, title, category, prompt summary, image/detail URLs, and why each case is useful.
+- **Prompt writing only**: search cases, classify categories, then return one final prompt plus optional alternatives. Do not call generation.
+- **Template-shaped generation**: fetch live templates, select `template_key`, use template size constraints, then choose provider. For host-native generation, translate template guidance into the prompt rather than claiming `template_key` was applied.
+- **Reference-image generation**: if the user supplies 1-2 images as style/subject references but wants a new image, treat it as generation with references. On Yali, use `action:"generate"` or omit `action` and include `reference_images`.
+- **Image editing**: if the user supplies image(s) and asks to change, remove, preserve, replace, localize, or restyle, treat it as edit. On Yali, use `action:"edit"` and 1-2 `reference_images`.
+- **PPT/slides**: route to the PPT branch, then use this workflow only for slide visual prompts and image provider choice.
 
 ## Editing Workflow
 

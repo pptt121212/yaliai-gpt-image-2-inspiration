@@ -67,6 +67,38 @@ Use public API searches in this order:
 
 Prefer cases whose visual structure matches the user's target, not just cases sharing a keyword.
 
+For generation or prompt-writing tasks, treat search as the default retrieval step. Skip search only when the user asks not to search, network/API access is unavailable, or the task is a narrow mechanical edit that does not need style or structure inspiration.
+
+Use 2-4 short searches rather than one long query. Combine:
+
+- output type: UI, poster, product, infographic, logo, storyboard, cover
+- subject/domain: skincare, finance app, coffee brand, AI coding, smart home
+- style/color: blue, premium, clean, cinematic, hand-drawn, 3D
+- platform: WeChat official account, Xiaohongshu, YouTube, mobile app, web dashboard
+
+When search results are weak, search the broader output type first, then adapt the visual structure to the user's subject.
+
+## Task Recipes
+
+Use these recipes to convert natural user wording into categories, search queries, template checks, and prompt constraints.
+
+| User task | Yali categories | Internal taxonomy | Search queries | Template check | Prompt focus |
+| --- | --- | --- | --- | --- | --- |
+| Website UI, Web page, SaaS dashboard, app screen, product interface | 产品界面/交互设计, 品牌/视觉规范 | `ui-mockup` | `网站 UI`, `网页界面`, `SaaS dashboard`, `app UI`, plus color/domain words | `ui-mockup` | screen hierarchy, navigation, cards/tables/forms, state, responsive feel, readable labels |
+| Landing page hero, website banner, campaign banner | 海报/封面/广告, 品牌/视觉规范 | `ads-marketing` | `website banner`, `landing page hero`, `campaign poster`, subject/style words | `website-banner` | focal subject, headline-safe negative space, brand tone, CTA area if requested |
+| WeChat, Xiaohongshu, video, article, course, podcast covers | 海报/封面/广告, 社媒/直播/截图, 字体/字效设计 | `ads-marketing` | `公众号封面`, `小红书封面`, `video cover`, `article cover`, topic words | `wechat-cover`, `xiaohongshu-cover`, `video-cover` | exact visible title, mobile readability, safe text area, high contrast |
+| Product photo, e-commerce main image, packaging, mockup | 产品/电商/包装, 海报/封面/广告 | `product-mockup` | `商品主图`, `product hero`, `packaging`, product type words | `product-hero` | material, surface, background, light, shadow, scale, commercial polish |
+| Infographic, knowledge card, explainer, comparison chart | 信息图/结构图, 文档/票据/手写资料 | `infographic-diagram` | `信息图`, `知识卡片`, `diagram`, `explainer`, topic words | `infographic` | information hierarchy, sections, labels, icons, legibility, not overcrowded |
+| Technical architecture, API flow, system diagram | 信息图/结构图 | `infographic-diagram` | `technical diagram`, `architecture diagram`, `flowchart`, technical terms | `technical-diagram` | nodes, arrows, layers, labels, clear relations |
+| Logo, brand mark, typography, visual identity | 品牌/视觉规范, 字体/字效设计 | `logo-brand` | `logo`, `brand mark`, `字体设计`, style/domain words | `logo-concept` | simple mark, scalable silhouette, typography, color constraints |
+| Portrait, character, lifestyle photo | 人物/肖像/摄影 | `photorealistic-natural` or `illustration-story` | `portrait`, `lifestyle photography`, role/style words | none unless output type fits | identity/pose, camera, lighting, background, clothing |
+| Illustration, concept art, story scene | 插画/艺术风格, 其他/综合创意 | `illustration-story` or `stylized-concept` | `illustration`, `concept art`, `story scene`, style words | `story-illustration` or `concept-art` | setting, character action, style, mood, composition |
+| Storyboard, film frame plan, advertising sequence | 分镜/动作参考, 海报/封面/广告 | `illustration-story` | `storyboard`, `film storyboard`, `ad storyboard`, scene words | `film-storyboard` or `ad-storyboard` | frame count, camera angles, action continuity, notes |
+| Image edit, retouch, object/background/text replacement | 图像编辑/参考图控制 | edit taxonomy such as `precise-object-edit`, `text-localization`, `background-extraction` | search only if style target is unclear | no generation template unless using Yali generation with references | edit target, must preserve, allowed change, avoid changing |
+| PPT, slides, deck, report visuals | 信息图/结构图, 海报/封面/广告, relevant topic category | slide visual taxonomy | search topic + `presentation`, `slide`, visual style words | usually none; use PPT branch | slide story, one visual idea per slide, 16:9, title-safe layout |
+
+Example: "生成一个蓝色的 Web 网站 UI 界面" should map to `产品界面/交互设计` + `ui-mockup`, search `网站 UI`, `网页界面`, `SaaS dashboard`, `blue UI`, check the live `ui-mockup` template, then write a prompt spec for a polished blue website interface before choosing the provider.
+
 ## Prompt Construction
 
 Build prompts with these blocks:

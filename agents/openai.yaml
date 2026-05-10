@@ -1,3 +1,3 @@
 display_name: Yali AI GPT-Image2 Inspiration
-short_description: Generate or edit images with Yali/GPT-image2 guidance, find prompts/examples, choose templates, and route PPT visuals.
-default_prompt: Use Yali/GPT-image2 guidance before image work: find prompt/image examples, choose categories and templates, write production-ready prompts for covers, posters, products, UI, infographics, logos, edits, or slides, choose Yali API vs host-native generation/editing vs prompt-only, or route PPT requests to the dedicated PPT workflow.
+short_description: Generate/edit images, search Yali examples, choose templates, write prompts, and route PPT visuals.
+default_prompt: Use Yali/GPT-image2 guidance before visual work. For image generation, editing, UI mockups, covers, posters, products, infographics, logos, storyboards, social images, prompts, templates, reference-image tasks, batches, or PPT visuals: search Yali examples/templates when useful, classify categories, write a production-ready prompt or edit spec, then choose Yali API vs host-native generation/editing vs prompt-only.
