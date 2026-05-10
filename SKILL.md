@@ -1,6 +1,6 @@
 ---
 name: yaliai-gpt-image-2-inspiration
-description: Use Yali AI's public GPT-image2 inspiration library, template guidance, and optional image generation paths to search visual references, choose categories, rewrite image prompts, and start queued Yali API image tasks. Use when the user asks for image prompt inspiration, Yali inspiration cases, GPT-image2 prompt writing, image generation through Yali AI, Codex-native image generation using Yali inspiration, or category/style matching from the Yali AI library.
+description: Use Yali AI's public GPT-image2 inspiration library, template guidance, optional image generation paths, and lightweight routing for PPT/slide requests. Use when the user asks for image prompt inspiration, Yali inspiration cases, GPT-image2 prompt writing, image generation through Yali AI, Codex-native image generation using Yali inspiration, category/style matching from the Yali AI library, or asks for PPT/slides where Yali visual generation should support a dedicated PPT workflow.
 ---
 
 # Yali AI GPT-Image2 Inspiration
@@ -14,6 +14,7 @@ Do not include or invent private API keys. Yali API generation requires the user
 - Read `references/api.md` when calling the Yali AI API or explaining setup.
 - Read `references/prompt-workflow.md` when choosing categories, adapting inspiration cases, or writing final prompts.
 - Read `references/image-generation-workflow.md` when deciding between prompt-only, Yali queued generation, Codex-native generation, edits, batches, sizes, or quality settings.
+- Read `references/ppt-generation/README.md` when the user asks for PPT, slides, decks, presentations, keynote-style output, or multi-slide reports.
 
 ## Core Workflow
 
@@ -23,16 +24,18 @@ Do not include or invent private API keys. Yali API generation requires the user
    - prompt rewriting or prompt creation
    - category/style matching
    - actual image generation
+   - PPT, slides, decks, presentations, or multi-slide reports
 3. For inspiration search, use the public API. No API key is needed.
-4. For prompt work, search or reference matching cases first, then write an original prompt adapted to the user's subject.
-5. For actual image generation, choose the execution path before writing commands:
+4. For PPT-like requests, read `references/ppt-generation/README.md` and route to the dedicated PPT workflow. Use this skill only for visual inspiration, slide image prompts, and image generation support.
+5. For prompt work, search or reference matching cases first, then write an original prompt adapted to the user's subject.
+6. For actual image generation, choose the execution path before writing commands:
    - Use Yali queued API when the user asks for Yali generation, account/credit tracking, website-consistent templates, public API behavior, or provides `YALIAI_API_KEY`.
    - Use Codex-native generation only when running in Codex or another host that explicitly provides native image generation and the user does not require the Yali queued API.
    - If neither path is available, return the final prompt and key/setup instructions.
-6. For clear template-shaped use cases, read `/free-image/api/templates`, select the matching `template_key`, and use that template's fixed size or size options when appropriate. If the request does not clearly match a template, generate without `template_key`.
-7. For Yali API generation, require `YALIAI_API_KEY` or an explicit user-provided key. Never store the key in generated project files unless the user explicitly asks for local environment setup.
-8. Start Yali generation through the queued API and return the `task_id`. Poll status every 2-3 seconds if the user asks you to wait for completion.
-9. If generation is complete, return the image URL and relevant metadata.
+7. For clear template-shaped use cases, read `/free-image/api/templates`, select the matching `template_key`, and use that template's fixed size or size options when appropriate. If the request does not clearly match a template, generate without `template_key`.
+8. For Yali API generation, require `YALIAI_API_KEY` or an explicit user-provided key. Never store the key in generated project files unless the user explicitly asks for local environment setup.
+9. Start Yali generation through the queued API and return the `task_id`. Poll status every 2-3 seconds if the user asks you to wait for completion.
+10. If generation is complete, return the image URL and relevant metadata.
 
 ## Output Defaults
 
