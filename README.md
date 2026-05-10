@@ -117,7 +117,7 @@ Public inspiration search is keyless. Image generation through Yali uses the use
 export YALIAI_API_KEY="your_key_here"
 ```
 
-Get your key after login at [Yali Free Image](https://www.yaliai.com/free-image/).
+Get your key after login at [Yali Skill/API setup](https://www.yaliai.com/free-image/skill/).
 
 ## Image Generation Workflow
 

@@ -202,7 +202,7 @@ If the user wants only a prompt:
 If the user wants generation:
 
 - First choose Yali queued API, host-native generation, or prompt-only using `image-generation-workflow.md`.
-- For Yali API generation, check that `YALIAI_API_KEY` is available or ask them to get it from `https://www.yaliai.com/free-image/`.
+- For Yali API generation, check that `YALIAI_API_KEY` is available or ask them to get it from `https://www.yaliai.com/free-image/skill/`.
 - Call the generation endpoint with the selected template and prompt only on the Yali API path.
 - Return `task_id`, status, queue position, and cost for Yali API tasks.
 - Poll only if the user wants you to wait.

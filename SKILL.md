@@ -7,7 +7,7 @@ description: Use when the user asks to generate, create, make, design, draw, ren
 
 Use this skill before image-generation or image-editing execution, even when the user only describes a concrete visual output such as "make a blue website UI" or "create a product poster." It turns the user's task into a concrete working path: search examples/templates when useful, choose categories, write a production-ready prompt/edit spec, and then route to Yali queued API, a host-native image tool, or a prompt-only fallback.
 
-Do not include or invent private API keys. Yali API generation requires the user's own key from `https://www.yaliai.com/free-image/`, preferably configured as `YALIAI_API_KEY`. Codex-native image generation may not need a Yali key, but that only applies inside hosts that already provide native image tools.
+Do not include or invent private API keys. Yali API generation requires the user's own key from `https://www.yaliai.com/free-image/skill/`, preferably configured as `YALIAI_API_KEY`. Codex-native image generation may not need a Yali key, but that only applies inside hosts that already provide native image tools.
 
 ## References
 
@@ -99,12 +99,12 @@ Use this authenticated endpoint only when executing through Yali:
 - If the user's request is vague, present 2-3 direction options before generating.
 - If the user's request clearly matches a template, state the selected template key and use the template's constraints in the generation request. Do not force a template for broad or ambiguous creative requests.
 - If search was skipped, briefly say why: user requested no search, no network/API access, or purely mechanical edit.
-- If no Yali API key is configured, use host-native image generation only when the host provides it and the user accepts that path. Otherwise provide the final prompt and instructions for where to get a key.
+- If no Yali API key is configured, use host-native image generation only when the host provides it and the user accepts that path. Otherwise provide the final prompt and tell the user to get/configure `YALIAI_API_KEY` from `https://www.yaliai.com/free-image/skill/`.
 
 ## API Key Rules
 
 - Never embed a real API key in `SKILL.md`, references, GitHub examples, NPM package files, or generated code samples.
 - Use `$YALIAI_API_KEY` in examples.
-- Tell users to get their own key from `https://www.yaliai.com/free-image/` after login.
+- Tell users to get their own key from `https://www.yaliai.com/free-image/skill/` after login.
 - Prefer environment variables over hardcoded key strings.
 - Do not imply that an NPM install creates a universal image-generation backend. The package installs the agent skill; generation still depends on either the Yali API key or the host's native image capability.

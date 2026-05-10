@@ -42,7 +42,7 @@ npx @yaliai/gpt-image-2-inspiration install codex
 export YALIAI_API_KEY="your_key_here"
 ```
 
-登录后在 [Yali Free Image](https://www.yaliai.com/free-image/) 获取。
+登录后在 [Yali Skill/API 配置页](https://www.yaliai.com/free-image/skill/) 获取。
 
 ## 示例
 

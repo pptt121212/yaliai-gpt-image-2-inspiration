@@ -31,7 +31,7 @@ Authorization: Bearer $YALIAI_API_KEY
 Users can get their own API key after logging in at:
 
 ```text
-https://www.yaliai.com/free-image/
+https://www.yaliai.com/free-image/skill/
 ```
 
 Never include a real key in public examples, repositories, generated docs, NPM packages, or skill files.
@@ -210,6 +210,8 @@ Only call after the task is `completed`.
 
 - `missing_api_key`: no Bearer key was provided.
 - `invalid_api_key`: key is invalid or revoked.
+
+For `missing_api_key` or `invalid_api_key`, direct the user to `https://www.yaliai.com/free-image/skill/` to copy or reset their own key, then configure it as `YALIAI_API_KEY`.
 - `active_task_exists`: poll the returned task before starting another generation.
 - `rate_limited`: wait and retry.
 - `invalid_task_id`: use the `task_id` returned by the generation endpoint.

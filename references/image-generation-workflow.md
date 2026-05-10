@@ -46,6 +46,7 @@ Do not blur these paths:
 
 - Public Yali inspiration search never requires a key.
 - Yali image generation and editing always require `YALIAI_API_KEY`.
+- If `YALIAI_API_KEY` is missing or invalid, direct the user to `https://www.yaliai.com/free-image/skill/` to copy or reset their key.
 - Codex-native generation/editing does not use Yali credits, Yali task IDs, Yali templates as server presets, or Yali result URLs.
 - Other AI coding tools may install this skill but may not have native image generation. In those tools, generation should use the Yali API or the tool's own documented image feature if present.
 - Yali editing uses the same queued `/free-image/api/generate` endpoint with `action:"edit"` and `reference_images`; do not invent a separate edit endpoint.
