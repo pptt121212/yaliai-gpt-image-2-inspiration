@@ -1,0 +1,37 @@
+{
+  "name": "@yaliai/gpt-image-2-inspiration",
+  "version": "0.1.0",
+  "description": "Agent skill for using the Yali AI GPT-image2 inspiration library, templates, and optional image generation paths.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://www.yaliai.com/free-image/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pptt121212/yaliai-gpt-image-2-inspiration.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pptt121212/yaliai-gpt-image-2-inspiration/issues"
+  },
+  "keywords": [
+    "agent-skill",
+    "codex",
+    "claude-code",
+    "opencode",
+    "gpt-image-2",
+    "image-generation",
+    "prompt",
+    "inspiration"
+  ],
+  "bin": {
+    "yaliai-gpt-image-2-inspiration": "bin/install.mjs"
+  },
+  "files": [
+    "SKILL.md",
+    "agents",
+    "bin",
+    "references"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
