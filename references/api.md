@@ -119,7 +119,7 @@ Response shape:
 
 Important: live templates are under `response.templatePresets`.
 
-Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the fallback template list in `prompt-workflow.md`, because the website may add or revise templates. For broad or ambiguous creative requests, omit `template_key`.
+Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the offline template guide in `prompt-workflow.md`, because the website may add or revise templates. For broad or ambiguous creative requests, omit `template_key`.
 
 Important template fields:
 

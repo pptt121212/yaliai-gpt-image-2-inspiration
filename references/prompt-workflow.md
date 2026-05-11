@@ -39,7 +39,7 @@ Use multiple categories when the request naturally crosses domains, such as a pr
 
 Capability mapping:
 
-- Find examples/prompts: use categories, search terms, random cases, and case details.
+- Find examples/prompts: use categories, search terms, and case details.
 - Choose templates: use live `/free-image/api/templates` when output type is explicit.
 - Write prompts: adapt cases and categories into an original prompt for the user's subject.
 - Generate images: hand off to `image-generation-workflow.md` after category/template matching.
@@ -76,7 +76,7 @@ Use public API searches in this order:
 1. Search direct subject words.
 2. Search output type words, such as WeChat cover, Xiaohongshu cover, video cover, article cover, poster, product, UI, portrait, infographic, logo, storyboard.
 3. Search style words, such as realistic, cinematic, watercolor, pixel, 3D, hand-drawn, luxury.
-4. If results are weak, use category-filtered random cases for browsing.
+4. If results are weak, broaden the search terms or browse category-level cases through available public endpoints.
 
 Prefer cases whose visual structure matches the user's target, not just cases sharing a keyword.
 
@@ -165,7 +165,7 @@ When generating through the API, choose a `template_key` only when the user's ne
 GET https://www.yaliai.com/wp-json/yali/v1/free-image/api/templates
 ```
 
-Use the live template data first. The fallback list below exists so the agent can reason before or without a network call.
+Use the live template data first. The offline template guide below exists so the agent can reason before or without a network call.
 
 - `product-hero`: product main image, e-commerce hero, product detail visual
 - `website-banner`: commercial poster, campaign image, banner, ad landing image
@@ -243,7 +243,7 @@ If the user wants only a prompt:
 
 If the user wants generation:
 
-- First choose Yali queued API or prompt-only using `image-generation-workflow.md`.
+- First choose Yali queued API, prompt/spec output, or setup-needed prompt/spec mode using `image-generation-workflow.md`.
 - For Yali API generation, check that `YALIAI_API_KEY` is available or ask them to get it from `https://www.yaliai.com/free-image/skill/`.
 - Call the generation endpoint through `scripts/python/yali_image_api.py` or `scripts/node/yali_image_api.mjs` with the selected template and prompt only on the Yali API path.
 - Return `task_id`, status, queue position, and cost for Yali API tasks.

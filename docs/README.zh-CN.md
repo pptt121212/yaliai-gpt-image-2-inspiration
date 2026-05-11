@@ -7,7 +7,7 @@
 - 免 Key 搜索 10000+ 精选图像提示词灵感库。
 - 按 Yali 分类和模板匹配用户需求。
 - 将模糊想法改写为可直接生成的 GPT-image2 提示词。
-- 配置 `YALIAI_API_KEY` 后调用 Yali 图像生成 API，并通过本地化脚本输出 Markdown 绝对路径预览。
+- 图像生成/编辑通过 Yali 图像生成 API 执行，需要 `YALIAI_API_KEY` 和 Python 或 Node 运行时，并通过本地化脚本输出 Markdown 绝对路径预览。
 - 当用户提到 PPT、slides、deck、演示文稿时，读取 `references/ppt-generation/` 执行本地 PPT 工作流。
 
 ## 安装
@@ -27,7 +27,7 @@ https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code codex --global --yes --copy
 ```
 
-NPM 备用安装。这里的 `codex` 是安装目标，不是安装另一个软件：
+NPM 包安装。这里的 `codex` 是安装目标，不是安装另一个软件：
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex

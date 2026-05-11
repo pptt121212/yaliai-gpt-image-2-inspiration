@@ -112,6 +112,18 @@ def collect_sources(payload: Any) -> list[dict[str, str]]:
     return sources
 
 
+def unique_sources(sources: list[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    unique: list[dict[str, str]] = []
+    for source in sources:
+        key = source["value"]
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(source)
+    return unique
+
+
 def bytes_from_source(value: str) -> tuple[bytes, str, str | None]:
     if value.startswith("data:image/"):
         header, encoded = value.split(",", 1)
@@ -148,7 +160,8 @@ def localize(payload: Any, out_dir: str | None, alt: str, limit: int | None = No
 
     root = output_root(out_dir)
     timestamp = time.strftime("%Y%m%d-%H%M%S")
-    selected = sources[:limit] if limit else sources
+    unique = unique_sources(sources)
+    selected = unique[:limit] if limit else unique
     outputs: list[dict[str, Any]] = []
 
     for index, source in enumerate(selected, start=1):
@@ -204,7 +217,8 @@ def self_test() -> int:
 
     cases = [
         ("yali-primary-url", {"response": {"url": http_url}}),
-        ("yali-fallback-asset-url", {"response": {"assets": [{"url": http_url}]}}),
+        ("yali-duplicate-url", {"response": {"url": http_url, "assets": [{"url": http_url}]}}),
+        ("yali-secondary-asset-url", {"response": {"assets": [{"url": http_url}]}}),
         ("openai-b64-json", {"data": [{"b64_json": sample_png_b64}]}),
         ("host-output-item", {"output_items": [{"result": sample_png_b64}]}),
         ("generic-local-path", {"path": str(source_png)}),

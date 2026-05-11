@@ -52,6 +52,12 @@ function scanStaleText() {
     /native[^.\n]*image generation/i,
     /host-native/i,
     /image_gen/,
+    /NPM 备用/,
+    /Prompt-only fallback/,
+    /when the runtime is configured/,
+    /generate\/edit through the Yali API when available/,
+    /Yali cannot run/,
+    /if Yali cannot run/,
     /ネイティブ/,
     /네이티브/,
     /nativa de im[aá]genes en Codex/i,
@@ -76,6 +82,9 @@ const checks = [];
 checks.push({ label: "runtime-python3", ok: commandExists("python3") });
 checks.push({ label: "runtime-node", ok: commandExists("node") });
 checks.push(run("node-localizer-self-test", "node", ["scripts/node/localize_image_result.mjs", "--self-test"]));
+checks.push(run("node-yali-api-help", "node", ["scripts/node/yali_image_api.mjs", "--help"]));
+checks.push(run("node-inspiration-help", "node", ["scripts/node/yali_inspiration.mjs", "--help"]));
+checks.push(run("node-localizer-help", "node", ["scripts/node/localize_image_result.mjs", "--help"]));
 checks.push(run("node-yali-api-dry-run", "node", ["scripts/node/yali_image_api.mjs", "generate", "--prompt", "测试小猫", "--quality", "medium", "--size-key", "1024x1024", "--dry-run"]));
 checks.push(run("node-inspiration-dry-run", "node", ["scripts/node/yali_inspiration.mjs", "search", "--query", "test", "--limit", "1", "--dry-run"]));
 if (commandExists("python3")) {

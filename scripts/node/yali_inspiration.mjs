@@ -4,6 +4,11 @@ import https from "node:https";
 
 const DEFAULT_BASE_URL = "https://www.yaliai.com/wp-json/yali/v1";
 const HTTP_USER_AGENT = "Mozilla/5.0 (Yali AI Skill Inspiration) AppleWebKit/537.36 Chrome/120 Safari/537.36";
+const USAGE = `Usage:
+  node scripts/node/yali_inspiration.mjs [--base-url URL] search --query TEXT [--limit N] [--offset N] [--category NAME] [--dry-run]
+  node scripts/node/yali_inspiration.mjs [--base-url URL] categories [--dry-run]
+  node scripts/node/yali_inspiration.mjs [--base-url URL] case --case-id CASE_ID [--dry-run]
+  node scripts/node/yali_inspiration.mjs [--base-url URL] templates [--dry-run]`;
 
 function die(message, code = 2) {
   console.error(JSON.stringify({ ok: false, error: message }));
@@ -11,6 +16,10 @@ function die(message, code = 2) {
 }
 
 function parseArgs(argv) {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   const global = { baseUrl: DEFAULT_BASE_URL };
   let i = 0;
   while (i < argv.length && argv[i].startsWith("--")) {

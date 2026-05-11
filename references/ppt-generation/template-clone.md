@@ -19,7 +19,7 @@ This is optional and should not block basic PPT generation.
 Likely dependencies:
 
 - `libreoffice` or `soffice`
-- optional Docker fallback for rendering
+- optional Docker alternate path for rendering
 - a vision-capable model or local image analysis workflow
 
 ## Rules

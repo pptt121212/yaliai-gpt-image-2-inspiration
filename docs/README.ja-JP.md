@@ -7,7 +7,7 @@ Yali AI の GPT-image2 インスピレーションライブラリを検索し、
 - API キーなしで 10,000+ の厳選画像プロンプト例を検索。
 - Yali のカテゴリとテンプレートに基づいて用途を分類。
 - あいまいなアイデアを実用的な GPT-image2 プロンプトへ変換。
-- `YALIAI_API_KEY` 設定時は Yali 画像生成 API を利用し、結果をローカル化して絶対パス Markdown で表示。
+- 画像生成/編集は Yali 画像生成 API で実行します。`YALIAI_API_KEY` と Python または Node ランタイムが必要で、結果をローカル化して絶対パス Markdown で表示します。
 - PPT / slides / deck の依頼は `references/ppt-generation/` を参照。
 
 ## Install

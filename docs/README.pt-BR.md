@@ -7,7 +7,7 @@ Agent Skill para pesquisar a biblioteca de inspiracao GPT-image2 da Yali AI, esc
 - Busca sem chave em mais de 10,000 exemplos curados de prompts.
 - Correspondencia com categorias e modelos da Yali.
 - Transformacao de ideias vagas em prompts GPT-image2 concretos.
-- Geracao via API Yali com `YALIAI_API_KEY`, localizacao dos resultados e preview Markdown com caminhos absolutos.
+- Geracao/edicao de imagens via API Yali; requer `YALIAI_API_KEY` e Python ou Node, depois localiza os resultados e mostra preview Markdown com caminhos absolutos.
 - Pedidos de PPT sao encaminhados para `references/ppt-generation/`.
 
 ## Install

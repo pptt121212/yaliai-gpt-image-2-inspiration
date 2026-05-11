@@ -25,7 +25,7 @@ flowchart TD
   I --> J["Start task -> poll status -> fetch result"]
   J --> K["Run localizer immediately"]
   K --> L["Local image file + metadata JSON + Markdown absolute path"]
-  H -->|setup needed| M["Return prompt/spec plus setup guidance"]
+  H -->|setup needed| M["Return setup-needed prompt/spec plus guidance"]
 ```
 
 ## Runtime Script Map
@@ -161,8 +161,9 @@ Choose one mode before execution:
 | --- | --- | --- | --- |
 | Public retrieval | examples, prompts, categories, case details, or templates | network access | case/template data and prompt guidance |
 | Yali queued API | generated or edited image files are requested | `YALIAI_API_KEY` and Python or Node | task metadata, result URL, localized image path and Markdown |
-| Prompt-only | setup is incomplete or the user asks only for prompts | none | final prompt/edit spec plus setup guidance |
-| PPT branch | PPT, slides, deck, presentation, or multi-slide report | depends on chosen artifact path | slide plan, slide prompts, generated images when available, and packaged artifacts |
+| Prompt/spec output | the user asks only for prompts or inspiration | none | final prompt/edit spec and reference context |
+| Setup-needed prompt/spec mode | generated or edited image files were requested but key/runtime/reference setup is incomplete | none | final prompt/edit spec plus concrete setup guidance |
+| PPT branch | PPT, slides, deck, presentation, or multi-slide report | depends on chosen local PPT workflow and Yali setup | slide plan, slide prompts, generated images when setup is complete, and packaged artifacts |
 
 Yali generation and editing use:
 
@@ -311,7 +312,7 @@ Use this for retouching, replacing objects, removing elements, changing style, l
 3. State the allowed change precisely.
 4. Execute through the Yali queued API with `action:"edit"` when `YALIAI_API_KEY` is available.
 5. Pass 1-2 images in `reference_images`. Each image is an object containing either `image_url:"data:image/...;base64,..."` or `mime_type` plus `base64`.
-6. Return prompt-only edit spec when setup is incomplete.
+6. Return setup-needed edit spec when setup is incomplete.
 
 ## Prompt Spec
 
@@ -387,7 +388,7 @@ For edits, keep each iteration targeted and restate invariants every time.
 
 ## Output Contract
 
-For prompt-only work, return the final prompt and reference cases.
+For prompt/spec-only work, return the final prompt and reference cases.
 
 For Yali API generation/editing, return:
 
@@ -400,7 +401,7 @@ For Yali API generation/editing, return:
 Recommended report shape:
 
 ```text
-Provider: <Yali queued API | prompt-only | PPT branch>
+Provider: <Yali queued API | prompt/spec output | setup-needed prompt/spec mode | PPT branch>
 Search: <queries used, or skipped with reason>
 Reference cases: <case_id/title links, or none>
 Template: <template_key or none>
@@ -416,7 +417,7 @@ Yali API field paths:
 - Status response queue position: `response.task.queue_position`
 - Status response error: `response.task.error_message`
 - Result primary image URL: `response.url`
-- Result fallback image URL: `response.assets[0].url`
+- Result secondary image URL: `response.assets[0].url`
 - Result revised prompt: `response.revised_prompt`
 
 For hosts that support Markdown image previews, use:

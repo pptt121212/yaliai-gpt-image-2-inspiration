@@ -39,16 +39,16 @@ flowchart LR
   Y --> T["queued task, status, result URL"]
   T --> L["Localizer"]
   L --> O[".yaliai/generated-images + metadata JSON + Markdown absolute path"]
-  K -->|setup needed| Q["Prompt-only spec + setup guidance"]
+  K -->|setup needed| Q["Setup-needed prompt/edit spec + guidance"]
 ```
 
 ## Script IO Contract
 
 | Script | Main inputs | Main outputs |
 | --- | --- | --- |
-| `yali_inspiration` | `search --query --limit`, `categories`, `case --case-id`, `templates` | normalized JSON: cases/templates/categories, including case IDs, image URLs, template keys, size options |
-| `yali_image_api` | `generate --prompt/--prompt-file --quality --size-key --template-key --action --reference-image --wait --alt`, `status --task-id`, `result --task-id` | JSON with `task_id`, start/status/result payloads, and `localize` when a completed result is localized |
-| `localize_image_result` | `--payload-file`, `--payload-json`, stdin JSON, `--out-dir`, `--alt`, `--limit` | JSON with `primary_output_path`, `primary_metadata_path`, `markdown`, and `outputs[]` |
+| `yali_inspiration` | `search --query/--q --limit --offset --category --dry-run`, `categories --dry-run`, `case --case-id --dry-run`, `templates --dry-run`, optional global `--base-url` | normalized JSON: cases/templates/categories, including case IDs, image URLs, template keys, size options |
+| `yali_image_api` | optional global `--base-url --api-key`; `generate --prompt/--prompt-file --quality --size-key --template-key --action --reference-image --wait --poll-interval --timeout --out-dir --alt --limit --no-localize --dry-run`, `status --task-id`, `result --task-id --out-dir --alt --limit --no-localize` | JSON with `task_id`, start/status/result payloads, and `localize` when a completed result is localized |
+| `localize_image_result` | `--payload-file`, `--payload-json`, stdin JSON, `--out-dir`, `--alt`, `--limit`, `--self-test` | JSON with `primary_output_path`, `primary_metadata_path`, `markdown`, and `outputs[]` |
 | `self_test` | no input | JSON regression report for runtime availability, dry-runs, localizer tests, and stale instruction scans |
 
 ## References
@@ -76,7 +76,7 @@ For ordinary frontend or application coding, use this skill only when the user a
 3. **Match**: map the request to Yali categories and fetch live templates when the output type is explicit.
 4. **Craft**: write an original prompt or edit spec that preserves the user's subject, visible text, platform, aspect/size, constraints, and edit invariants.
 5. **Preflight**: verify `YALIAI_API_KEY` for Yali generation/editing, reference images for edits, template size, quality, output format, and polling/result behavior.
-6. **Execute**: run the Yali queued API with `scripts/python/yali_image_api.py` or `scripts/node/yali_image_api.mjs`. For prompt-only tasks or missing setup, return the prompt/spec and the concrete setup item.
+6. **Execute**: run the Yali queued API with `scripts/python/yali_image_api.py` or `scripts/node/yali_image_api.mjs` for generation/editing. For prompt-only user requests, return the prompt/spec. For generation/editing with missing setup, return setup-needed prompt/edit spec plus the concrete setup item.
 7. **Localize**: pass completed image URLs, base64 payloads, or local result paths to `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 8. **Report**: include provider, search queries/cases when used, template when used, final prompt/edit spec, task/result fields, localized absolute path, and returned Markdown preview.
 
@@ -85,11 +85,11 @@ For ordinary frontend or application coding, use this skill only when the user a
 | User intent | Skill contribution | Reference | Execution |
 | --- | --- | --- | --- |
 | Find examples or prompts | Query public Yali inspiration APIs and summarize matching cases | `references/api.md`, `references/prompt-workflow.md` | Public Yali API |
-| Write or improve prompts | Map to categories, adapt case structure, write an original prompt | `references/prompt-workflow.md` | Prompt-only unless generation is requested |
-| Template-shaped visual | Fetch live templates and select a matching `template_key` | `references/api.md`, `references/prompt-workflow.md` | Public template metadata plus Yali generation when requested |
+| Write or improve prompts | Map to categories, adapt case structure, write an original prompt | `references/prompt-workflow.md` | Prompt/spec output unless generation is requested |
+| Template-shaped visual | Fetch live templates and select a matching `template_key` | `references/api.md`, `references/prompt-workflow.md` | Public template metadata plus Yali API when generation is requested |
 | Generate a new image | Shape prompt, size, quality, template, and visible text constraints | `references/image-generation-workflow.md` | Yali API with key, then localizer |
 | Edit an image | Define edit target, invariants, allowed changes, and reference payloads | `references/image-generation-workflow.md`, `references/api.md` | Yali API with `action:"edit"` and 1-2 `reference_images`, then localizer |
-| Generate PPT or slide visuals | Route to PPT branch and support slide-level visual prompts/images | `references/ppt-generation/README.md` | Dedicated PPT workflow plus Yali image path or prompt-only |
+| Generate PPT or slide visuals | Route to PPT branch and support slide-level visual prompts/images | `references/ppt-generation/README.md` | Dedicated PPT workflow plus Yali image path or setup-needed prompt/spec mode |
 
 ## Provider Modes
 
@@ -97,10 +97,11 @@ For ordinary frontend or application coding, use this skill only when the user a
 | --- | --- | --- | --- |
 | Public retrieval | searching examples, prompts, categories, case details, or templates | none | case/template data and adapted prompt guidance |
 | Yali queued API | user wants generated or edited image files | `YALIAI_API_KEY` | `task_id`, queue/status/result metadata, localized image path and Markdown |
-| Prompt-only | no generation key/runtime is available, or user asks only for prompts | none | final prompt/edit spec plus setup guidance |
-| PPT branch | user asks for PPT/slides/deck/presentation | depends on image path | slide plan, slide visual prompts, generated images when available, and PPT artifacts |
+| Prompt/spec output | user asks only for prompts or inspiration | none | final prompt/edit spec and reference context |
+| Setup-needed prompt/spec mode | generation/editing was requested but key/runtime/reference setup is incomplete | none | final prompt/edit spec plus concrete setup guidance |
+| PPT branch | user asks for PPT/slides/deck/presentation | depends on chosen local PPT workflow and Yali setup | slide plan, slide visual prompts, generated images when setup is complete, and PPT artifacts |
 
-Yali template keys are sent through the Yali API as `template_key`. When the Yali API cannot run, return prompt-only output with the exact setup item needed.
+Yali template keys are sent through the Yali API as `template_key`. When generation/editing setup is incomplete, return setup-needed prompt/edit spec with the exact setup item needed; do not switch to another image provider from this skill.
 
 ## Endpoint Map
 

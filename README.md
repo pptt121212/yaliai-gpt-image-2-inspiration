@@ -38,8 +38,8 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 | Inspiration search | No | Case links, images, categories, prompt references |
 | Prompt rewriting | No | Production-ready GPT-image2 prompt |
 | Template guidance | No | Best Yali template and size recommendation |
-| Yali image generation/editing | Yes, `YALIAI_API_KEY` | Queued task ID, result URL, localized Markdown image |
-| PPT workflow routing | Depends on generation path | Slide plan, slide prompts, images, HTML preview, PPTX |
+| Yali image generation/editing | Yes, `YALIAI_API_KEY` and Python or Node | Queued task ID, result URL, localized Markdown image |
+| PPT workflow routing | Depends on local PPT tooling and Yali generation setup | Slide plan, slide prompts, images, HTML preview, PPTX |
 
 ## Languages
 
@@ -59,7 +59,7 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 - Search the public Yali inspiration library with no API key.
 - Match user ideas to Yali categories and generation templates.
 - Rewrite vague ideas into concrete GPT-image2 prompts. Inspiration cases are references for structure, style, and platform conventions; the final prompt should be original and adapted to the user's request.
-- Use Yali's Free Image generation/editing API when `YALIAI_API_KEY` is configured, then localize results with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
+- Execute image generation/editing through Yali's Free Image API with `YALIAI_API_KEY`, then localize results with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 - Run through bundled Python or Node CLIs for generation, inspiration search, and localization.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
 - Keep API keys out of repositories and generated examples.
@@ -84,7 +84,7 @@ Codex only:
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent codex --global --yes --copy
 ```
 
-Yali NPM fallback installer:
+Yali NPM package installer:
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex
@@ -130,11 +130,24 @@ flowchart TD
   A["User idea"] --> B["Search Yali inspiration library"]
   B --> C["Choose categories, templates, and references"]
   C --> D["Write production-ready GPT-image2 prompt"]
-  D --> E{"Generation path"}
-  E --> F["Yali API: queued task + task_id + result URL"]
-  F --> G["Localizer: stable local file + Markdown"]
-  E --> H["Prompt-only output"]
+  D --> E{"Runtime and YALIAI_API_KEY ready"}
+  E -->|yes| F["Yali API runner: queued task + task_id + result URL"]
+  F --> G["Localizer: stable local file + Markdown absolute path"]
+  E -->|setup needed| H["Prompt/spec plus concrete setup guidance"]
 ```
+
+Bundled runtime scripts:
+
+| Capability | Python | Node |
+| --- | --- | --- |
+| Yali generation, editing, status, result, polling | `scripts/python/yali_image_api.py` | `scripts/node/yali_image_api.mjs` |
+| Inspiration search, categories, case details, templates | `scripts/python/yali_inspiration.py` | `scripts/node/yali_inspiration.mjs` |
+| Result localization to stable files and Markdown previews | `scripts/python/localize_image_result.py` | `scripts/node/localize_image_result.mjs` |
+| Install/runtime regression check | - | `scripts/node/self_test.mjs` |
+
+Run commands from the Skill directory. Prefer Python when `python3` exists; use Node when Python is unavailable. If neither runtime exists, the Skill can still return prompts and setup guidance but cannot execute local image generation.
+
+Detailed CLI parameters are defined in [SKILL.md](SKILL.md) and [references/image-generation-workflow.md](references/image-generation-workflow.md).
 
 ## Real Image Examples
 
@@ -181,7 +194,6 @@ Useful public endpoints:
 ```text
 GET /inspiration/categories
 GET /inspiration/search?q=poster&limit=10
-GET /inspiration/random?limit=6
 GET /inspiration/cases/{case_id}
 GET /free-image/api/templates
 GET /free-image/api-docs

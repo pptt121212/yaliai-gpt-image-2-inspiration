@@ -7,6 +7,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HTTP_USER_AGENT = "Mozilla/5.0 (Yali AI Skill Localizer) AppleWebKit/537.36 Chrome/120 Safari/537.36";
+const USAGE = `Usage:
+  node scripts/node/localize_image_result.mjs --payload-file RESULT.json [--out-dir DIR] [--alt TEXT] [--limit N]
+  node scripts/node/localize_image_result.mjs --payload-json JSON [--out-dir DIR] [--alt TEXT] [--limit N]
+  cat result.json | node scripts/node/localize_image_result.mjs [--out-dir DIR] [--alt TEXT] [--limit N]
+  node scripts/node/localize_image_result.mjs --self-test
+
+Output:
+  JSON with primary_output_path, primary_metadata_path, markdown, and outputs[].`;
 
 function die(message, code = 2) {
   console.error(JSON.stringify({ ok: false, error: message }));
@@ -14,6 +22,10 @@ function die(message, code = 2) {
 }
 
 function parseArgs(argv) {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   const args = {};
   for (let i = 0; i < argv.length; i += 1) {
     const item = argv[i];
@@ -102,6 +114,18 @@ export function collectSources(payload) {
   return sources;
 }
 
+function uniqueSources(sources) {
+  const seen = new Set();
+  const unique = [];
+  for (const source of sources) {
+    const key = source.value;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(source);
+  }
+  return unique;
+}
+
 function httpGetBuffer(url) {
   const client = url.startsWith("https:") ? https : http;
   return new Promise((resolve, reject) => {
@@ -145,7 +169,8 @@ export async function localize(payload, options = {}) {
   if (!sources.length) die("No supported image source found.");
   const root = path.resolve(options.outDir || path.join(process.cwd(), ".yaliai", "generated-images"));
   fs.mkdirSync(root, { recursive: true });
-  const selected = options.limit ? sources.slice(0, Number(options.limit)) : sources;
+  const unique = uniqueSources(sources);
+  const selected = options.limit ? unique.slice(0, Number(options.limit)) : unique;
   const outputs = [];
   for (let i = 0; i < selected.length; i += 1) {
     const source = selected[i];
@@ -188,6 +213,7 @@ async function selfTest() {
   fs.writeFileSync(sourcePath, Buffer.from(sample, "base64"));
   const cases = [
     ["yali-primary-url", { response: { url: `data:image/png;base64,${sample}` } }],
+    ["yali-duplicate-url", { response: { url: `data:image/png;base64,${sample}`, assets: [{ url: `data:image/png;base64,${sample}` }] } }],
     ["openai-b64-json", { data: [{ b64_json: sample }] }],
     ["generic-local-path", { path: sourcePath }],
   ];

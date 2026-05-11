@@ -46,7 +46,7 @@ outputs/<timestamp>/
 Use one path consistently for a deck:
 
 - **Yali API**: the agent calls Yali queued image generation with `YALIAI_API_KEY`, waits for completed images, localizes them with the Python or Node localizer, then packages locally.
-- **Prompt-only**: if Yali cannot run, produce the slide plan and per-slide prompts without claiming to generate files.
+- **Setup-needed prompt/spec mode**: if Yali key/runtime setup is incomplete, produce the slide plan and per-slide prompts without claiming to generate files.
 
 ## Handoff Message
 
@@ -58,6 +58,6 @@ Topic: <topic>
 Audience: <audience>
 Slide count: <count or auto>
 Suggested style: <style>
-Generation path: <Yali API | prompt-only>
+Generation path: <Yali API | setup-needed prompt/spec mode>
 Next artifact: slides_plan + per-slide image prompts
 ```

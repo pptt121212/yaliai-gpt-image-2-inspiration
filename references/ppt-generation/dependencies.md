@@ -45,7 +45,7 @@ Use cases:
 - `sharp`: inspect, resize, or normalize slide images if needed.
 - `image-size`: lightweight dimension checks when image processing is not needed.
 
-Python fallback:
+Python alternate stack:
 
 ```text
 python >= 3.9
@@ -65,7 +65,7 @@ Template clone mode should belong to the dedicated PPT skill, not this image ins
 If implemented later, likely dependencies are:
 
 - `libreoffice` or `soffice` for rendering `.pptx` templates to PNG.
-- Docker plus a LibreOffice image as a fallback render path.
+- Docker plus a LibreOffice image as an alternate render path.
 - A vision-capable model or local screenshot/image analysis tool to analyze template screenshots.
 
 Keep template clone dependencies optional for basic PPT generation.

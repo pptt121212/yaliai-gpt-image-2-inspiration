@@ -41,7 +41,7 @@ Runtime requirement for generated images: the current AI coding tool must be abl
 1. Detect the user's current tool: Codex, Claude Code, OpenCode, Gemini CLI, or another agent.
 2. Check whether `npx` is available.
 3. Prefer the open `skills` CLI when `npx` exists and the target agent is supported.
-4. Use the Yali NPM fallback when the user wants this package's built-in installer.
+4. Use the Yali NPM package installer when the user wants this package copier.
 5. Use manual GitHub copy when Node/NPM is unavailable.
 6. Verify that `SKILL.md` exists in the target directory.
 7. If the user's message includes a Yali API key, configure it as `YALIAI_API_KEY` in the current user's local runtime environment by following the "Configure API Key" section below.
@@ -86,7 +86,7 @@ The `--agent` values identify install targets rather than AI tool installers.
 
 ## Install With the Yali NPM Package
 
-Use this when the user prefers the package's built-in copier:
+Use this when the user prefers the package copier:
 
 ```bash
 npx @yaliai/gpt-image-2-inspiration install codex
