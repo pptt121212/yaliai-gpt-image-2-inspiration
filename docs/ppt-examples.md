@@ -1,6 +1,6 @@
 # PPT Generation Examples
 
-The PPT branch is a local workflow driven by this Skill's routing documents under `references/ppt-generation/`. It does not call the website `/ppt/` task system directly.
+The PPT branch is a local workflow driven by this Skill's routing documents under `references/ppt-generation/`: local planning, Yali slide-image generation, localization, HTML preview, and PPTX packaging.
 
 ## Example Workflow
 
@@ -9,7 +9,7 @@ flowchart TD
   A["Topic and audience"] --> B["slides_plan.md / slides_plan.json"]
   B --> C["Choose Yali /ppt style"]
   C --> D["One image prompt per slide"]
-  D --> E["Codex-native or Yali API image generation"]
+  D --> E["Yali API image generation + localization"]
   E --> F["images/slide-01.png ..."]
   F --> G["index.html preview"]
   F --> H["presentation.pptx"]

@@ -1,5 +1,7 @@
 node_modules/
 *.tgz
+__pycache__/
+*.pyc
 .env
 .env.*
 npm-debug.log*

@@ -1,7 +1,7 @@
 interface:
   display_name: "Yali AI GPT-Image2 Inspiration"
-  short_description: "Search Yali examples and guide image workflows"
-  default_prompt: "Use $yaliai-gpt-image-2-inspiration to search Yali examples/templates, write a prompt or edit spec, then choose Yali API, Codex-native generation, PPT routing, or prompt-only output."
+  short_description: "Search Yali examples and generate through Yali API"
+  default_prompt: "Use $yaliai-gpt-image-2-inspiration to search Yali examples/templates through the bundled Python/Node CLI, write a prompt or edit spec, generate/edit through the Yali API when available, then localize the result with Markdown absolute paths."
 
 policy:
   allow_implicit_invocation: true

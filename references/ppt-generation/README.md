@@ -6,10 +6,10 @@ This image inspiration skill does not own the full PPT workflow. It should route
 
 ## Boundary
 
-- Do not call the website `/ppt/` task system from this skill.
-- Do not create WordPress PPT tasks, depend on browser login, or use website-only authorization state.
-- Do not imply the PPT output has editable text and shapes when it is image-based.
-- Do not store API keys in generated files. Use environment variables such as `YALIAI_API_KEY`.
+- Use a dedicated PPT skill or local PPT workflow for the deck itself.
+- Use the Yali image API for slide images when `YALIAI_API_KEY` is available.
+- Describe image-based PPT output as image-based slides.
+- Keep API keys in environment variables such as `YALIAI_API_KEY`.
 
 ## Preferred Direction
 
@@ -27,8 +27,8 @@ This image skill may support the dedicated PPT skill by:
 - searching Yali inspiration cases for visual references
 - choosing Yali categories or templates for slide imagery
 - writing slide-level GPT-image2 prompts
-- selecting Codex-native generation or Yali queued API generation
-- generating slide images when the current host supports image generation
+- selecting Yali queued API generation or prompt-only output
+- generating slide images through the Yali API when the runtime is configured
 
 ## Branch Documents
 
@@ -44,11 +44,10 @@ This image skill may support the dedicated PPT skill by:
 
 Choose one path before executing:
 
-1. **Codex-native path**: in Codex, use the host's native image-generation tool for each slide image, then use local scripts from the dedicated PPT workflow to package images into PPTX.
-2. **Yali API path**: in any tool with `YALIAI_API_KEY`, call the Yali queued image-generation API for each slide image, download finished images, then package locally.
-3. **Prompt-only fallback**: if no generation backend is available, create the presentation plan and slide image prompts only.
+1. **Yali API path**: in any tool with `YALIAI_API_KEY`, call the Yali queued image-generation API for each slide image, localize finished images, then package locally.
+2. **Prompt-only fallback**: if Yali cannot run, create the presentation plan and slide image prompts only.
 
-Codex-native generation is a host capability, not a callable library inside packaged scripts. Scripts can package images and create previews, but the agent must call native image tools directly when using the Codex path.
+Slide images go through the Yali API and `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs` before packaging.
 
 ## Output Contract
 
@@ -66,6 +65,6 @@ PPT workflow needed: <dedicated skill or local scripts>
 Topic: <user topic>
 Audience: <audience>
 Suggested style: <visual direction>
-Generation path: <Codex-native | Yali API | prompt-only>
+Generation path: <Yali API | prompt-only>
 Next artifact: slides_plan + per-slide image prompts
 ```

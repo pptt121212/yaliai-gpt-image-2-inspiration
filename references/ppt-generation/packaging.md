@@ -38,7 +38,7 @@ Fallback path:
 
 ## Packaging Rules
 
-- Do not mix editable text-shape construction with image-based slides unless the dedicated PPT workflow explicitly supports it.
+- Keep editable text-shape construction separate from image-based slides unless the dedicated PPT workflow explicitly supports both.
 - Keep the PPTX output visually faithful to the generated slide images.
 - Ensure the PPTX file name is derived from the deck title.
 - Normalize image dimensions before packaging when needed.

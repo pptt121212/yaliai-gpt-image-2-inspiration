@@ -30,7 +30,7 @@ if (!allowedCommands.has(command)) {
 }
 
 const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)));
-const entries = ['SKILL.md', 'agents', 'references'];
+const entries = ['SKILL.md', 'agents', 'references', 'scripts'];
 const targetDefinitions = {
   codex: {
     label: 'Codex',
@@ -71,6 +71,10 @@ for (const entry of entries) {
   }
 }
 
+function shouldCopy(source) {
+  return !source.includes('__pycache__') && !source.endsWith('.pyc');
+}
+
 function selectedTargets(rawTargets) {
   const names = rawTargets.length ? rawTargets : ['all'];
   const selected = new Set();
@@ -95,7 +99,7 @@ for (const targetDefinition of selectedTargets(targetArgs)) {
   mkdirSync(target, { recursive: true });
 
   for (const entry of entries) {
-    cpSync(join(packageRoot, entry), join(target, entry), { recursive: true });
+    cpSync(join(packageRoot, entry), join(target, entry), { recursive: true, filter: shouldCopy });
   }
 
   console.log(`Installed ${skillName} for ${targetDefinition.label}: ${target}`);

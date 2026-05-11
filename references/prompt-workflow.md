@@ -4,7 +4,7 @@ Use Yali prompt examples, image examples, categories, and templates as a referen
 
 ## Reference Use Rules
 
-Do not behave like a template copier. Use Yali cases and templates as production references:
+Use Yali cases and templates as production references:
 
 1. Understand the user's requested asset.
 2. Search Yali cases/templates when useful.
@@ -13,7 +13,7 @@ Do not behave like a template copier. Use Yali cases and templates as production
 5. Write a new prompt that satisfies the user's request.
 6. Continue with generation/editing only after provider preflight.
 
-The user's request has priority over inspiration-library wording. Cases and templates improve the result; they do not replace the user's intent.
+The user's request has priority over inspiration-library wording. Cases and templates improve the result while the final prompt remains centered on the user's intent.
 
 ## Category-First Matching
 
@@ -67,7 +67,7 @@ Use these buckets internally when a prompt needs more precise production handlin
 - `compositing`: combine multiple images with matched perspective and light
 - `sketch-to-render`: turn sketch, wireframe, or rough draft into polished output
 
-The taxonomy is for agent reasoning. Do not expose it as if it were the website's official category list unless the user asks for internal classification details.
+The taxonomy is for agent reasoning. Expose it only when the user asks for internal classification details.
 
 ## Search Strategy
 
@@ -93,15 +93,15 @@ When search results are weak, search the broader output type first, then adapt t
 
 If all searches are weak or empty:
 
-- Do not stop unless the user only asked to browse existing cases.
+- Continue with category recipe and template reasoning unless the user only asked to browse existing cases.
 - Use the category recipe and template list to classify the task.
 - If a live template clearly fits, use that `template_key` and write an original prompt from the user's request.
 - If no template fits, omit `template_key` and write the best original prompt using the prompt construction checklist.
 - In the report, state that search results were weak or empty and that the final prompt was generated from the user's request plus category/template reasoning.
 
-If search results exist but do not match the request:
+If search results exist but are mismatched:
 
-- Do not force irrelevant cases into the prompt.
+- Leave irrelevant cases out of the prompt.
 - Keep only transferable structure, such as "mobile-safe large title", "dashboard card hierarchy", or "16:9 slide diagram layout".
 - Prefer the user's subject, visible text, platform, aspect ratio, and constraints over the retrieved case content.
 
@@ -144,7 +144,7 @@ For generation, edits, or batches, see `image-generation-workflow.md` for the fu
 
 ## Prompt Craft Checklist
 
-Use this checklist after category/search matching and before generation. Keep it concise; do not turn every request into a large template.
+Use this checklist after category/search matching and before generation. Keep it concise and scale the structure to the task.
 
 - **Exact text**: quote every visible string that must appear in the image. Preserve user-supplied Chinese or brand copy verbatim.
 - **Canvas before subject**: for UI, posters, covers, infographics, diagrams, and slides, state aspect ratio/layout before visual detail.
@@ -152,14 +152,14 @@ Use this checklist after category/search matching and before generation. Keep it
 - **Commercial hierarchy**: for posters, covers, banners, and ads, specify title area, focal subject, supporting copy, CTA/safe area when relevant, and mobile readability.
 - **Diagram grammar**: for infographics and technical diagrams, define zones, nodes, arrows, legends, labels, and visual semantics instead of only saying "make a diagram."
 - **Editing invariants**: for edits, always write what must stay unchanged, what may change, and what must be avoided.
-- **Reference use**: when using Yali cases, adapt structure and constraints; do not copy the case prompt verbatim unless the user explicitly asks.
+- **Reference use**: when using Yali cases, adapt structure and constraints; reuse a case prompt verbatim only when the user explicitly asks.
 - **Negative line**: add a short `Avoid:` line when the request risks generic, cluttered, garbled text, fake UI, or over-stylized output.
 
 Ask at most one concise clarification when a missing detail blocks the result. Otherwise choose sensible defaults from the matched category/template and proceed.
 
 ## Template Selection
 
-When generating through the API, choose a `template_key` only when the user's need clearly maps to a Yali template. Do not force templates for broad, exploratory, or ambiguous creative requests. Before using a template, read the live template endpoint:
+When generating through the API, choose a `template_key` only when the user's need clearly maps to a Yali template. For broad, exploratory, or ambiguous creative requests, omit `template_key` and describe the constraints directly. Before using a template, read the live template endpoint:
 
 ```text
 GET https://www.yaliai.com/wp-json/yali/v1/free-image/api/templates
@@ -195,7 +195,7 @@ When a request is clearly template-shaped, use this sequence:
 5. Set `size_key` from `fixedSize` if present; otherwise pick the most suitable `sizeOptions` value.
 6. Send `template_key`, `prompt`, `size_key`, `quality`, and optional `prompt_context` to `/free-image/api/generate`.
 
-Template presets add server-side prompt constraints. Do not paste hidden server instructions or invent template internals; send a clean user prompt plus the selected `template_key`.
+Template presets add server-side prompt constraints. Send a clean user prompt plus the selected `template_key`; use only visible live template metadata.
 
 When the request is not clearly template-shaped, omit `template_key` and express the needed constraints directly in the prompt.
 
@@ -231,7 +231,7 @@ When referencing cases:
 
 - Include `case_id`, `title`, and `detail_url`.
 - Use case prompts as structural inspiration.
-- Do not claim the result is copied from the case.
+- Describe case influence as adapted structure or visual reference.
 - Preserve user-specific details over case-specific details.
 
 ## Generation Decision
@@ -243,15 +243,15 @@ If the user wants only a prompt:
 
 If the user wants generation:
 
-- First choose Yali queued API, host-native generation, or prompt-only using `image-generation-workflow.md`.
+- First choose Yali queued API or prompt-only using `image-generation-workflow.md`.
 - For Yali API generation, check that `YALIAI_API_KEY` is available or ask them to get it from `https://www.yaliai.com/free-image/skill/`.
-- Call the generation endpoint with the selected template and prompt only on the Yali API path.
+- Call the generation endpoint through `scripts/python/yali_image_api.py` or `scripts/node/yali_image_api.mjs` with the selected template and prompt only on the Yali API path.
 - Return `task_id`, status, queue position, and cost for Yali API tasks.
 - Poll only if the user wants you to wait.
 
 ## Safety And Key Handling
 
-- Never include a real key in generated files.
+- Keep real keys out of generated files.
 - Use `$YALIAI_API_KEY` in shell examples.
 - If producing repository files, put key instructions in `.env.example`, not `.env`.
 - If the user pastes a key, use it only for the current request unless they explicitly ask to save it locally.

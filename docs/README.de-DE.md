@@ -7,8 +7,7 @@ Agent Skill zum Durchsuchen der Yali AI GPT-image2 Inspirationsbibliothek, Schre
 - Schluessellose Suche in 10,000+ kuratierten Prompt-Beispielen.
 - Zuordnung zu Yali-Kategorien und Vorlagen.
 - Umwandlung vager Ideen in konkrete GPT-image2 Prompts.
-- Bildgenerierung ueber die Yali API mit `YALIAI_API_KEY`.
-- Codex-native Bildgenerierung, wenn verfuegbar.
+- Bildgenerierung ueber die Yali API mit `YALIAI_API_KEY`, lokalisierte Ergebnisse und Markdown-Vorschau mit absoluten Pfaden.
 - PPT-Anfragen werden an `references/ppt-generation/` weitergeleitet.
 
 ## Install

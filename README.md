@@ -12,7 +12,7 @@ Recommended agent-first install: paste this into your AI coding tool and let it 
 Please install Yali AI GPT-Image2 Inspiration Skill by following:
 https://raw.githubusercontent.com/pptt121212/yaliai-gpt-image-2-inspiration/main/docs/install.md
 
-If I include a Yali API key in this message, install the Skill and configure the key as YALIAI_API_KEY in the current user's local runtime environment by following the install guide. Verify that the current shell or target runtime can read YALIAI_API_KEY. Do not write the key into SKILL.md, README.md, references, package.json, project source files, or any file likely to be committed to Git.
+If I include a Yali API key in this message, install the Skill and configure the key as YALIAI_API_KEY in the current user's local runtime environment by following the install guide. Verify that the current shell or target runtime can read YALIAI_API_KEY. Keep real keys out of SKILL.md, README.md, references, package.json, project source files, and any file likely to be committed to Git.
 ```
 
 If you already have `npx` and want to install directly:
@@ -38,8 +38,7 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 | Inspiration search | No | Case links, images, categories, prompt references |
 | Prompt rewriting | No | Production-ready GPT-image2 prompt |
 | Template guidance | No | Best Yali template and size recommendation |
-| Yali image generation/editing | Yes, `YALIAI_API_KEY` | Queued task ID and result URL |
-| Codex-native generation | No Yali key | Host-native generated image |
+| Yali image generation/editing | Yes, `YALIAI_API_KEY` | Queued task ID, result URL, localized Markdown image |
 | PPT workflow routing | Depends on generation path | Slide plan, slide prompts, images, HTML preview, PPTX |
 
 ## Languages
@@ -60,8 +59,8 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 - Search the public Yali inspiration library with no API key.
 - Match user ideas to Yali categories and generation templates.
 - Rewrite vague ideas into concrete GPT-image2 prompts. Inspiration cases are references for structure, style, and platform conventions; the final prompt should be original and adapted to the user's request.
-- Use Yali's Free Image generation/editing API when `YALIAI_API_KEY` is configured.
-- Use Codex-native image generation when running in Codex and native image tools are available.
+- Use Yali's Free Image generation/editing API when `YALIAI_API_KEY` is configured, then localize results with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
+- Run through bundled Python or Node CLIs for generation, inspiration search, and localization.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
 - Keep API keys out of repositories and generated examples.
 
@@ -108,6 +107,7 @@ mkdir -p ~/.codex/skills/yaliai-gpt-image-2-inspiration
 cp -R yaliai-gpt-image-2-inspiration/SKILL.md \
       yaliai-gpt-image-2-inspiration/agents \
       yaliai-gpt-image-2-inspiration/references \
+      yaliai-gpt-image-2-inspiration/scripts \
       ~/.codex/skills/yaliai-gpt-image-2-inspiration/
 ```
 
@@ -121,7 +121,7 @@ export YALIAI_API_KEY="your_key_here"
 
 Get your key after login at [Yali Skill/API setup](https://www.yaliai.com/free-image/skill/).
 
-When asking an AI coding tool to configure the key, tell it to use the variable name `YALIAI_API_KEY` and follow [docs/install.md](docs/install.md). The agent should write it to the current user's shell profile, Windows user environment, service environment, or the tool's documented local secrets/runtime environment, then verify that `YALIAI_API_KEY` is readable. Do not put real keys in repositories, package files, README files, Skill files, or shared prompts.
+When asking an AI coding tool to configure the key, tell it to use the variable name `YALIAI_API_KEY` and follow [docs/install.md](docs/install.md). The agent should write it to the current user's shell profile, Windows user environment, service environment, or the tool's documented local secrets/runtime environment, then verify that `YALIAI_API_KEY` is readable. Keep real keys out of repositories, package files, README files, Skill files, and shared prompts.
 
 ## Image Generation Workflow
 
@@ -132,7 +132,7 @@ flowchart TD
   C --> D["Write production-ready GPT-image2 prompt"]
   D --> E{"Generation path"}
   E --> F["Yali API: queued task + task_id + result URL"]
-  E --> G["Codex native image generation"]
+  F --> G["Localizer: stable local file + Markdown"]
   E --> H["Prompt-only output"]
 ```
 
@@ -157,13 +157,13 @@ More examples: [docs/examples.md](docs/examples.md)
 
 ## PPT Generation Branch
 
-This Skill does not call the website `/ppt/` task system. When the user asks for PPT, slides, deck, keynote, or presentation output, the main Skill routes the agent to `references/ppt-generation/`.
+When the user asks for PPT, slides, deck, keynote, or presentation output, the main Skill routes the agent to `references/ppt-generation/` for a local PPT workflow.
 
 The PPT branch supports a local workflow:
 
 1. Plan the deck as `slides_plan.md` and `slides_plan.json`.
 2. Generate one 16:9 image prompt per slide.
-3. Use Codex-native image generation or the Yali API to create slide images.
+3. Use the Yali API to create slide images, then localize each result.
 4. Package the images into `index.html` and an image-based `presentation.pptx`.
 
 PPT examples: [docs/ppt-examples.md](docs/ppt-examples.md)
@@ -221,7 +221,7 @@ The public inspiration library currently covers categories such as:
 - Infographics, diagrams, and technical explainers
 - Logo and brand direction exploration
 - Storyboards and scene planning
-- Codex-native image generation with Yali inspiration
+- Yali API image generation with localized Markdown previews
 - Local PPT generation workflows powered by slide images
 
 ## Package Contents
@@ -229,6 +229,13 @@ The public inspiration library currently covers categories such as:
 ```text
 SKILL.md
 agents/openai.yaml
+scripts/python/localize_image_result.py
+scripts/python/yali_image_api.py
+scripts/python/yali_inspiration.py
+scripts/node/localize_image_result.mjs
+scripts/node/yali_image_api.mjs
+scripts/node/yali_inspiration.mjs
+scripts/node/self_test.mjs
 references/api.md
 references/prompt-workflow.md
 references/image-generation-workflow.md

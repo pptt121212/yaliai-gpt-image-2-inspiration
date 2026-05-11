@@ -9,13 +9,13 @@ Use this dependency guide before proposing or running a local PPT workflow.
 - A local PPTX packaging script.
 - A local HTML preview template.
 
-## Codex-Native Path
+## Yali Image Path
 
-For Codex-native image generation:
+For slide image generation:
 
-- No Yali API key is required for the image tool itself if the host provides native image generation.
-- The agent must call the host image-generation tool directly.
-- Local scripts cannot call Codex-native image generation like a normal SDK.
+- `YALIAI_API_KEY` is required.
+- The agent must call the Yali queued image-generation API.
+- Finished image results must be localized with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 - Packaging still needs a local runtime such as Node.js or Python.
 
 ## Yali API Path
@@ -25,9 +25,9 @@ For Yali API image generation:
 - Requires `YALIAI_API_KEY` in the environment or explicitly provided for the current run.
 - Uses Yali queued image-generation endpoints.
 - Returns Yali task IDs and result URLs.
-- Generated images should be downloaded locally before PPTX packaging.
+- Generated images should be localized before PPTX packaging.
 
-Never store real keys in repository files. Use `$YALIAI_API_KEY` in examples.
+Keep real keys out of repository files. Use `$YALIAI_API_KEY` in examples.
 
 ## Recommended Local Packaging Stack
 
@@ -66,9 +66,9 @@ If implemented later, likely dependencies are:
 
 - `libreoffice` or `soffice` for rendering `.pptx` templates to PNG.
 - Docker plus a LibreOffice image as a fallback render path.
-- A vision-capable model or host-native multimodal reading to analyze template screenshots.
+- A vision-capable model or local screenshot/image analysis tool to analyze template screenshots.
 
-Do not make template clone dependencies mandatory for basic PPT generation.
+Keep template clone dependencies optional for basic PPT generation.
 
 ## Environment Variables
 

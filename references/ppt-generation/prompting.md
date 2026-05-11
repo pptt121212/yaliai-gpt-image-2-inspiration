@@ -21,7 +21,7 @@ Build each prompt from these blocks:
 - Make cover slides more striking and content slides more structured.
 - Make data slides emphasize hierarchy, contrast, and readability.
 - Use the same style system across the whole deck.
-- Do not copy inspiration cases verbatim; adapt them to the user's topic.
+- Adapt inspiration cases to the user's topic.
 
 ## Example Shape
 
@@ -39,6 +39,5 @@ Avoid: clutter, tiny text, decorative noise
 
 ## Routing Notes
 
-- If the host is Codex, the agent should call native image generation directly for each slide image.
-- If the host is not Codex and `YALIAI_API_KEY` exists, use the Yali queued image API.
-- If neither path exists, return prompts only.
+- If `YALIAI_API_KEY` exists, use the Yali queued image API for each slide image and localize each finished result.
+- If Yali cannot run, return prompts only.

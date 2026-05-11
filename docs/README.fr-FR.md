@@ -7,8 +7,7 @@ Agent Skill pour rechercher dans la bibliothèque d'inspiration GPT-image2 de Ya
 - Recherche sans clé API dans plus de 10 000 exemples de prompts sélectionnés.
 - Correspondance avec les catégories et modèles Yali.
 - Transformation d'idées vagues en prompts GPT-image2 prêts à générer.
-- Génération via l'API Yali avec `YALIAI_API_KEY`.
-- Génération native dans Codex quand elle est disponible.
+- Génération via l'API Yali avec `YALIAI_API_KEY`, localisation des résultats et aperçu Markdown avec chemins absolus.
 - Routage des demandes PPT vers `references/ppt-generation/`.
 
 ## Install

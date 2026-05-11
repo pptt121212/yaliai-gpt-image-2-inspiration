@@ -20,7 +20,7 @@ https://www.yaliai.com/wp-json/yali/v1/free-image/api-docs
 
 ## Authentication
 
-Public inspiration endpoints do not require an API key.
+Public inspiration endpoints are keyless.
 
 Image generation endpoints require:
 
@@ -34,11 +34,11 @@ Users can get their own API key after logging in at:
 https://www.yaliai.com/free-image/skill/
 ```
 
-Never include a real key in public examples, repositories, generated docs, NPM packages, or skill files.
+Keep real keys out of public examples, repositories, generated docs, NPM packages, and skill files.
 
-This API is the only path that returns Yali task IDs, uses Yali credits, and runs through the Yali website queue. Host-native image generation or editing in tools such as Codex is separate and must not be represented as a Yali API task.
+This API is the generation/editing path for this Skill. It returns Yali task IDs, uses Yali credits, runs through the Yali website queue, and produces result URLs that must be passed to `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 
-Yali editing uses the same queued generation endpoint. Send `action:"edit"` and provide 1-2 `reference_images`. There is no separate public edit endpoint.
+Yali editing uses the same queued generation endpoint. Send `action:"edit"` and provide 1-2 `reference_images`.
 
 ## Public Inspiration Endpoints
 
@@ -60,7 +60,7 @@ Searches titles, categories, prompts, and keywords.
 
 Important fields:
 
-- Search results are under `response.items`. Do not read `response.results`.
+- Search results are under `response.items`.
 - `case_id`
 - `slug`
 - `title`
@@ -117,9 +117,9 @@ Response shape:
 }
 ```
 
-Important: live templates are under `response.templatePresets`. Do not read template keys from the top level of the response.
+Important: live templates are under `response.templatePresets`.
 
-Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the fallback template list in `prompt-workflow.md`, because the website may add or revise templates. Do not force a template for broad or ambiguous creative requests.
+Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the fallback template list in `prompt-workflow.md`, because the website may add or revise templates. For broad or ambiguous creative requests, omit `template_key`.
 
 Important template fields:
 
@@ -136,6 +136,34 @@ When a template has `sizeOptions`, choose the best size for the target platform 
 ## Image Generation
 
 Generation and editing use the same Yali AI queue, credit, template, reference-image, and result system as the website.
+
+Prefer a bundled runner instead of hand-written `curl`. Use Python when available:
+
+```bash
+python3 scripts/python/yali_image_api.py generate \
+  --prompt "一张极简商品主图，白色背景，高级棚拍光线" \
+  --template-key product-hero \
+  --quality medium \
+  --size-key 1024x1024 \
+  --wait \
+  --alt "product hero image"
+```
+
+The runner uses Python standard-library JSON handling.
+
+If `python3` is unavailable but Node.js is available:
+
+```bash
+node scripts/node/yali_image_api.mjs generate \
+  --prompt "一张极简商品主图，白色背景，高级棚拍光线" \
+  --template-key product-hero \
+  --quality medium \
+  --size-key 1024x1024 \
+  --wait \
+  --alt "product hero image"
+```
+
+The Node runner uses only Node built-in modules.
 
 ### Start Generation
 
@@ -160,7 +188,7 @@ Common body fields:
 | --- | --- | --- | --- | --- |
 | `prompt` | string | yes | any clear image prompt | Required for generation and editing. |
 | `action` | string | no | `generate` or `edit` | Defaults to generation behavior when omitted. Use `edit` only with `reference_images`. |
-| `template_key` | string | no | live template key such as `product-hero`, `website-banner`, `ui-mockup`, `infographic`, `video-cover` | Fetch `/free-image/api/templates` first; do not invent keys. |
+| `template_key` | string | no | live template key such as `product-hero`, `website-banner`, `ui-mockup`, `infographic`, `video-cover` | Fetch `/free-image/api/templates` first and use a returned key. |
 | `quality` | string | no | `low`, `medium`, `high` | Use `medium` by default; use `high` for text/UI/product/detail-critical work. |
 | `size_key` | string | no | e.g. `1024x1024` or a live template size | Prefer `fixedSize` or best `sizeOptions` from live templates. |
 | `output_format` | string | no | `jpeg`, `png`, `webp` | Defaults to website/API behavior when omitted. |
@@ -250,7 +278,7 @@ Important status paths:
 - Queue position: `response.task.queue_position`
 - Error message: `response.task.error_message`
 
-Do not assume status is always at `response.status`; the status endpoint nests it under `task.status`.
+Read status from `response.task.status`; the status endpoint nests it under `task.status`.
 
 ### Result
 
@@ -312,7 +340,7 @@ For hosts that reliably preview local absolute paths, prefer the downloaded loca
 ![Yali API result](/absolute/path/to/yali-result.png)
 ```
 
-Do not assume Markdown is the only valid preview mechanism. Use the host's native preview behavior when available.
+When filesystem access exists, localize the result and use the localizer's absolute-path Markdown preview as the final display artifact.
 
 ## Rate And Queue Behavior
 

@@ -1,6 +1,6 @@
 # Local PPT Workflow
 
-Use this workflow when a user asks for PPT generation and a dedicated PPT skill or local PPT scripts are available. This document describes the intended local workflow; it does not require the website `/ppt/` task system.
+Use this workflow when a user asks for PPT generation and a dedicated PPT skill or local PPT scripts are available. This document describes the intended local workflow based on local planning, slide image generation, preview, and PPTX packaging.
 
 ## Responsibilities
 
@@ -10,7 +10,7 @@ The PPT workflow owns:
 2. Slide planning: create `slides_plan.md` for human review and `slides_plan.json` for scripts.
 3. Visual direction: choose a style, template, or reference direction.
 4. Per-slide prompt writing: turn each slide into a 16:9 image prompt.
-5. Image generation: use Codex-native image generation or Yali API.
+5. Image generation: use Yali API, then localize image results.
 6. Packaging: create local HTML preview and image-based PPTX.
 
 This image inspiration skill supports only the visual parts: inspiration search, category/template guidance, prompt writing, and image generation path selection.
@@ -45,9 +45,8 @@ outputs/<timestamp>/
 
 Use one path consistently for a deck:
 
-- **Codex-native**: the agent directly calls the host's image-generation tool for each slide. Scripts only package resulting images.
-- **Yali API**: the agent calls Yali queued image generation with `YALIAI_API_KEY`, waits for completed images, downloads them, then packages locally.
-- **Prompt-only**: if no generation backend is available, produce the slide plan and per-slide prompts without claiming to generate files.
+- **Yali API**: the agent calls Yali queued image generation with `YALIAI_API_KEY`, waits for completed images, localizes them with the Python or Node localizer, then packages locally.
+- **Prompt-only**: if Yali cannot run, produce the slide plan and per-slide prompts without claiming to generate files.
 
 ## Handoff Message
 
@@ -59,6 +58,6 @@ Topic: <topic>
 Audience: <audience>
 Slide count: <count or auto>
 Suggested style: <style>
-Generation path: <Codex-native | Yali API | prompt-only>
+Generation path: <Yali API | prompt-only>
 Next artifact: slides_plan + per-slide image prompts
 ```

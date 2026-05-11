@@ -29,9 +29,12 @@ It contains:
 SKILL.md
 agents/
 references/
+scripts/
 ```
 
-The NPM package and GitHub repository are only distribution methods. Installing this Skill does not create a private image backend. Yali image generation still requires `YALIAI_API_KEY`; Codex-native image generation only works in hosts that already provide native image generation.
+The NPM package and GitHub repository are distribution methods. Yali image generation requires `YALIAI_API_KEY`, and generated results are localized through the bundled Python or Node scripts.
+
+Runtime requirement for generated images: the current AI coding tool must be able to run either `python3` or `node`. The Skill includes both Python and Node CLIs for Yali API calls, inspiration search, and image localization. If neither runtime exists, the Skill can still return prompts/setup guidance but cannot execute image generation locally.
 
 ## For AI Agents
 
@@ -79,7 +82,7 @@ Claude Code only:
 npx skills add pptt121212/yaliai-gpt-image-2-inspiration --skill yaliai-gpt-image-2-inspiration --agent claude-code --global --yes --copy
 ```
 
-The `--agent` values are install targets. They do not install those AI tools.
+The `--agent` values identify install targets rather than AI tool installers.
 
 ## Install With the Yali NPM Package
 
@@ -112,6 +115,7 @@ mkdir -p ~/.codex/skills/yaliai-gpt-image-2-inspiration
 cp -R "$tmp_dir/yaliai-gpt-image-2-inspiration/SKILL.md" \
       "$tmp_dir/yaliai-gpt-image-2-inspiration/agents" \
       "$tmp_dir/yaliai-gpt-image-2-inspiration/references" \
+      "$tmp_dir/yaliai-gpt-image-2-inspiration/scripts" \
       ~/.codex/skills/yaliai-gpt-image-2-inspiration/
 rm -rf "$tmp_dir"
 ```
@@ -125,6 +129,7 @@ mkdir -p ~/.opencode/skills/yaliai-gpt-image-2-inspiration
 cp -R "$tmp_dir/yaliai-gpt-image-2-inspiration/SKILL.md" \
       "$tmp_dir/yaliai-gpt-image-2-inspiration/agents" \
       "$tmp_dir/yaliai-gpt-image-2-inspiration/references" \
+      "$tmp_dir/yaliai-gpt-image-2-inspiration/scripts" \
       ~/.opencode/skills/yaliai-gpt-image-2-inspiration/
 rm -rf "$tmp_dir"
 ```
@@ -144,7 +149,7 @@ Restart the agent after the file exists.
 
 ## Configure API Key
 
-Public inspiration search does not require a key. Yali online image generation requires a key from:
+Public inspiration search is keyless. Yali online image generation requires a key from:
 
 ```text
 https://www.yaliai.com/free-image/skill/
@@ -156,7 +161,7 @@ The variable name is always:
 YALIAI_API_KEY
 ```
 
-If the user provides a key during installation, configure it immediately. Do not write the real key into `SKILL.md`, `README.md`, `references/`, `package.json`, project source files, or any file likely to be committed to Git.
+If the user provides a key during installation, configure it immediately. Keep the real key out of `SKILL.md`, `README.md`, `references/`, `package.json`, project source files, and any file likely to be committed to Git.
 
 ### Linux / macOS
 

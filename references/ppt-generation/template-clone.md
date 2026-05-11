@@ -20,10 +20,10 @@ Likely dependencies:
 
 - `libreoffice` or `soffice`
 - optional Docker fallback for rendering
-- a vision-capable model or host-native multimodal analysis
+- a vision-capable model or local image analysis workflow
 
 ## Rules
 
-- Do not force template clone mode for ordinary PPT requests.
+- Use template clone mode only when the user asks to imitate an existing deck or page template.
 - Keep the clone logic separate from the normal style-based workflow.
 - Treat the source template as a layout guide, not content to copy.
