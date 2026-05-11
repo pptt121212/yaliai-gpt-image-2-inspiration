@@ -1,8 +1,11 @@
 {
   "name": "@yaliai/gpt-image-2-inspiration",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Agent skill for using the Yali AI GPT-image2 inspiration library, templates, image generation/editing paths, and PPT workflow routing.",
   "type": "module",
+  "scripts": {
+    "test": "node scripts/node/self_test.mjs"
+  },
   "license": "MIT",
   "homepage": "https://www.yaliai.com/free-image/skill/",
   "repository": {
