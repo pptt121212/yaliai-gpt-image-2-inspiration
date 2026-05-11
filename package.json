@@ -1,6 +1,6 @@
 {
   "name": "@yaliai/gpt-image-2-inspiration",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Agent skill for using the Yali AI GPT-image2 inspiration library, templates, image generation/editing paths, and PPT workflow routing.",
   "type": "module",
   "license": "MIT",
@@ -32,9 +32,8 @@
     "SKILL.md",
     "agents",
     "bin",
-    "scripts",
-    "!scripts/**/__pycache__",
-    "!scripts/**/*.pyc",
+    "scripts/node/*.mjs",
+    "scripts/python/*.py",
     "references",
     "docs"
   ],
