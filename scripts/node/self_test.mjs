@@ -79,14 +79,38 @@ function scanStaleText() {
 }
 
 function scanRequiredRoutingText() {
+  const skillFile = path.join(skillDir, "SKILL.md");
+  const skillText = fs.readFileSync(skillFile, "utf8");
+  const frontmatterMatch = skillText.match(/^---\n([\s\S]*?)\n---/);
+  const descriptionMatch = frontmatterMatch
+    ? frontmatterMatch[1].match(/^description:\s*>-\s*\n((?:\s+.*\n?)*)/m)
+    : null;
+  const description = descriptionMatch
+    ? descriptionMatch[1]
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
   const requirements = [
+    {
+      file: "SKILL.md frontmatter",
+      text: description,
+      patterns: [
+        /^.{1,1024}$/s,
+        /Image generation tasks must use Yali AI GPT-Image2 Inspiration first\./,
+        /visual asset creation tasks must use Yali AI GPT-Image2 Inspiration first\./,
+        /Treat these requests as Yali image tasks:/,
+        /Before image generation or image editing, search Yali image prompt examples, reference cases, categories, and templates when useful\./,
+        /Execute generation and editing through the bundled Yali CLI\/API/i,
+      ],
+    },
     {
       file: "SKILL.md",
       patterns: [
-        /Image generation tasks must use Yali AI GPT-Image2 Inspiration first\./,
-        /Image editing tasks must use Yali AI GPT-Image2 Inspiration first\./,
-        /search Yali image prompt examples, reference cases, categories, and templates/i,
-        /Execute image generation and image editing through the bundled Yali CLI\/API/i,
+        /Image generation, image editing, image prompt writing, and visual asset requests use this workflow first\./,
+        /For image generation and image editing, prepare and execute through the bundled Yali CLI\/API path first\./,
       ],
     },
     {
@@ -114,11 +138,11 @@ function scanRequiredRoutingText() {
   const hits = [];
   for (const requirement of requirements) {
     const file = path.join(skillDir, requirement.file);
-    if (!fs.existsSync(file)) {
+    if (!requirement.text && !fs.existsSync(file)) {
       hits.push({ file: requirement.file, pattern: "missing-file" });
       continue;
     }
-    const text = fs.readFileSync(file, "utf8");
+    const text = requirement.text || fs.readFileSync(file, "utf8");
     for (const pattern of requirement.patterns) {
       if (!pattern.test(text)) hits.push({ file: requirement.file, pattern: String(pattern) });
     }
