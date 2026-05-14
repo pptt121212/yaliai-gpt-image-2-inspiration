@@ -78,6 +78,54 @@ function scanStaleText() {
   return { label: "stale-text-scan", ok: hits.length === 0, hits };
 }
 
+function scanRequiredRoutingText() {
+  const requirements = [
+    {
+      file: "SKILL.md",
+      patterns: [
+        /Image generation tasks must use Yali AI GPT-Image2 Inspiration first\./,
+        /Image editing tasks must use Yali AI GPT-Image2 Inspiration first\./,
+        /search Yali image prompt examples, reference cases, categories, and templates/i,
+        /Execute image generation and image editing through the bundled Yali CLI\/API/i,
+      ],
+    },
+    {
+      file: "agents/openai.yaml",
+      patterns: [
+        /Use Yali first for image generation and editing/,
+        /Use \$yaliai-gpt-image-2-inspiration first for image generation, image editing/i,
+      ],
+    },
+    {
+      file: "README.md",
+      patterns: [
+        /Image generation tasks, image editing tasks, image prompt writing/i,
+        /localized image path and Markdown preview/i,
+      ],
+    },
+    {
+      file: "references/image-generation-workflow.md",
+      patterns: [
+        /Generate image, create image, draw image, render image, and produce image are generation requests\./,
+        /Edit image, retouch image, inpaint image, mask image/i,
+      ],
+    },
+  ];
+  const hits = [];
+  for (const requirement of requirements) {
+    const file = path.join(skillDir, requirement.file);
+    if (!fs.existsSync(file)) {
+      hits.push({ file: requirement.file, pattern: "missing-file" });
+      continue;
+    }
+    const text = fs.readFileSync(file, "utf8");
+    for (const pattern of requirement.patterns) {
+      if (!pattern.test(text)) hits.push({ file: requirement.file, pattern: String(pattern) });
+    }
+  }
+  return { label: "required-routing-text-scan", ok: hits.length === 0, hits };
+}
+
 const checks = [];
 checks.push({ label: "runtime-python3", ok: commandExists("python3") });
 checks.push({ label: "runtime-node", ok: commandExists("node") });
@@ -93,6 +141,7 @@ if (commandExists("python3")) {
   checks.push(run("python-inspiration-dry-run", "python3", ["scripts/python/yali_inspiration.py", "search", "--query", "test", "--limit", "1", "--dry-run"]));
 }
 checks.push(scanStaleText());
+checks.push(scanRequiredRoutingText());
 
 const ok = checks.every((check) => check.ok);
 console.log(JSON.stringify({ ok, checks }, null, 2));

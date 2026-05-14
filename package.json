@@ -1,7 +1,7 @@
 {
   "name": "@yaliai/gpt-image-2-inspiration",
   "version": "0.1.16",
-  "description": "Agent skill for using the Yali AI GPT-image2 inspiration library, templates, image generation/editing paths, and PPT workflow routing.",
+  "description": "Agent skill that routes image generation, image editing, image prompts, prompt examples, templates, and PPT visuals through Yali AI GPT-Image2.",
   "type": "module",
   "scripts": {
     "test": "node scripts/node/self_test.mjs"

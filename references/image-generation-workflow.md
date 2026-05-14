@@ -1,6 +1,6 @@
 # Image Generation Workflow
 
-Use this file when the installed skill is asked to generate, edit, batch-create, or localize images. Treat user verbs literally: generate/create/make/design means new generation; edit/retouch/inpaint/mask/replace/remove/localize/restyle/composite means image editing.
+Use this file when the installed skill is asked to generate, edit, batch-create, or localize images. Generate image, create image, draw image, render image, and produce image are generation requests. Edit image, retouch image, inpaint image, mask image, replace image background, remove objects from image, restyle image, and composite image are editing requests.
 
 The execution path is:
 
@@ -143,9 +143,9 @@ Outputs:
 
 ## Skill-First Execution Order
 
-1. Classify the task: new image, edit, batch, or PPT slide image.
-2. Map the request to Yali categories and useful inspiration search terms.
-3. Search Yali examples for broad generation, prompt writing, style matching, templates, and PPT visual work. Skip retrieval for direct generation from a complete prompt, narrow mechanical edits, or unavailable network/API access.
+1. Classify the task: new image, edit, batch, or PPT slide visual.
+2. Map the request to Yali categories, prompt-example queries, and template candidates.
+3. Search Yali prompt examples, reference cases, categories, and templates when that will improve the result. Skip retrieval only for direct generation from a complete prompt, narrow mechanical edits, or unavailable network/API access.
 4. Check template fit for explicit output types such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
 5. Build a compact prompt spec with reference cases, exact visible text, size/aspect, layout, constraints, and avoid list.
 6. Run preflight: key, reference images, template size, quality, polling behavior, and output location.

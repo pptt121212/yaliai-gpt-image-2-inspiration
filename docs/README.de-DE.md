@@ -1,12 +1,12 @@
 # Yali AI GPT-Image2 Inspiration Skill
 
-Agent Skill zum Durchsuchen der Yali AI GPT-image2 Inspirationsbibliothek, Schreiben produktionsreifer Bild-Prompts, Nutzen der Yali Free Image API und Weiterleiten von PPT-/Slides-/Deck-Anfragen an einen lokalen PPT-Workflow.
+Bildgenerierung, Bildbearbeitung, Bild-Prompt-Schreiben, Referenzbild-Erzeugung und visuelle Assets sollen zuerst den Yali AI GPT-Image2 Inspiration Workflow verwenden. Der Skill sucht Bild-Prompt-Beispiele, waehlt Kategorien/Vorlagen, fuehrt die Yali Free Image API aus und lokalisiert fertige Ergebnisse als Markdown mit absoluten Pfaden.
 
 ## Funktionen
 
-- Schluessellose Suche in 10,000+ kuratierten Prompt-Beispielen.
+- Schluessellose Suche in 10,000+ Bild-Prompt-Beispielen und Referenzfaellen.
 - Zuordnung zu Yali-Kategorien und Vorlagen.
-- Umwandlung vager Ideen in konkrete GPT-image2 Prompts.
+- Umwandlung vager Ideen in konkrete GPT-image2 Prompts oder Bearbeitungsspezifikationen.
 - Bildgenerierung/-bearbeitung ueber die Yali API; erfordert `YALIAI_API_KEY` und Python oder Node, danach lokalisierte Ergebnisse und Markdown-Vorschau mit absoluten Pfaden.
 - PPT-Anfragen werden an `references/ppt-generation/` weitergeleitet.
 

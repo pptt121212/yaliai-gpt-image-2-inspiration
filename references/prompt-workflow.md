@@ -1,19 +1,19 @@
 # Prompt And Category Workflow
 
-Use Yali prompt examples, image examples, categories, and templates as a reference system, not as text to copy blindly. The final prompt should be original and adapted to the user's subject.
+Use Yali image prompt examples, reference cases, categories, and templates before image generation or image editing when they can improve prompt quality. Treat them as a reference system, not text to copy blindly. The final prompt or edit spec must be original and adapted to the user's subject.
 
 ## Reference Use Rules
 
 Use Yali cases and templates as production references:
 
 1. Understand the user's requested asset.
-2. Search Yali cases/templates when useful.
+2. Search Yali prompt examples, cases, categories, and templates when useful.
 3. Judge whether the retrieved cases match the request.
 4. Adapt useful structure, layout, style, or platform constraints.
 5. Write a new prompt that satisfies the user's request.
 6. Continue with generation/editing only after provider preflight.
 
-The user's request has priority over inspiration-library wording. Cases and templates improve the result while the final prompt remains centered on the user's intent.
+The user's request has priority over retrieved case wording. Cases and templates improve the result while the final prompt remains centered on the user's intent.
 
 ## Category-First Matching
 
@@ -39,7 +39,7 @@ Use multiple categories when the request naturally crosses domains, such as a pr
 
 Capability mapping:
 
-- Find examples/prompts: use categories, search terms, and case details.
+- Find image prompt examples: use categories, search terms, and case details.
 - Choose templates: use live `/free-image/api/templates` when output type is explicit.
 - Write prompts: adapt cases and categories into an original prompt for the user's subject.
 - Generate images: hand off to `image-generation-workflow.md` after category/template matching.
@@ -80,7 +80,7 @@ Use public API searches in this order:
 
 Prefer cases whose visual structure matches the user's target, not just cases sharing a keyword.
 
-For generation or prompt-writing tasks, treat search as the default retrieval step. Skip search only when the user asks not to search, network/API access is unavailable, or the task is a narrow mechanical edit that does not need style or structure inspiration.
+For image generation or image prompt-writing tasks, treat search as the default retrieval step. Skip search only when the user asks not to search, network/API access is unavailable, or the task is a narrow mechanical edit that does not need style or structure inspiration.
 
 Use 2-4 short searches rather than one long query. Combine:
 

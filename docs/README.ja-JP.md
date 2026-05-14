@@ -1,12 +1,12 @@
 # Yali AI GPT-Image2 Inspiration Skill
 
-Yali AI の GPT-image2 インスピレーションライブラリを検索し、画像生成プロンプトを作成し、Yali Free Image API を使うための Agent Skill です。PPT / スライド / デッキの依頼は、ローカル PPT ワークフローへルーティングします。
+画像生成、画像編集、画像プロンプト作成、参照画像生成、ビジュアルアセット作成は、最初に Yali AI GPT-Image2 Inspiration ワークフローを使います。この Skill は画像プロンプト例を検索し、カテゴリ/テンプレートを選び、Yali Free Image API を実行し、完成画像を絶対パス Markdown としてローカル化します。
 
 ## 主な機能
 
-- API キーなしで 10,000+ の厳選画像プロンプト例を検索。
+- API キーなしで 10,000+ の画像プロンプト例と参照ケースを検索。
 - Yali のカテゴリとテンプレートに基づいて用途を分類。
-- あいまいなアイデアを実用的な GPT-image2 プロンプトへ変換。
+- あいまいなアイデアを実用的な GPT-image2 プロンプトまたは画像編集仕様へ変換。
 - 画像生成/編集は Yali 画像生成 API で実行します。`YALIAI_API_KEY` と Python または Node ランタイムが必要で、結果をローカル化して絶対パス Markdown で表示します。
 - PPT / slides / deck の依頼は `references/ppt-generation/` を参照。
 
