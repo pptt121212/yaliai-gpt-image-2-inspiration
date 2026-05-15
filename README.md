@@ -151,6 +151,7 @@ flowchart TD
   F -->|yes| G["Yali API runner: queued task + task_id + result URL"]
   G --> H["Localizer: stable local file + Markdown absolute path"]
   F -->|fallback allowed| I["Compatible or host-native fallback with Yali-built prompt"]
+  I --> H
   F -->|setup needed| J["Prompt/spec plus concrete setup guidance"]
 ```
 
@@ -197,7 +198,7 @@ The PPT branch supports a local workflow:
 
 1. Plan the deck as `slides_plan.md` and `slides_plan.json`.
 2. Generate one 16:9 image prompt per slide.
-3. Use the Yali API to create slide images, then localize each result.
+3. Use the Yali API first for slide images; when explicitly allowed, use compatible fallback execution with the same Yali-built prompts.
 4. Package the images into `index.html` and an image-based `presentation.pptx`.
 
 PPT examples: [docs/ppt-examples.md](docs/ppt-examples.md)

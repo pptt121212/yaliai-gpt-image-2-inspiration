@@ -8,6 +8,7 @@ This image inspiration skill does not own the full PPT workflow. It should route
 
 - Use a dedicated PPT skill or local PPT workflow for the deck itself.
 - Use the Yali image API for slide images when `YALIAI_API_KEY` is available.
+- Use compatible-provider execution for slide images only as an explicit fallback under `references/compatible-providers.md`; Yali inspiration, prompt construction, and slide prompt archiving still run first.
 - Describe image-based PPT output as image-based slides.
 - Keep API keys in environment variables such as `YALIAI_API_KEY`.
 
@@ -27,7 +28,7 @@ This image skill may support the dedicated PPT skill by:
 - searching Yali inspiration cases for visual references
 - choosing Yali categories or templates for slide imagery
 - writing slide-level GPT-image2 prompts
-- selecting Yali queued API generation or setup-needed prompt/spec mode
+- selecting Yali queued API generation, compatible fallback, or setup-needed prompt/spec mode
 - generating slide images through the Yali API when key/runtime setup is complete
 
 ## Branch Documents
@@ -45,9 +46,10 @@ This image skill may support the dedicated PPT skill by:
 Choose one path before executing:
 
 1. **Yali API path**: in any tool with `YALIAI_API_KEY`, call the Yali queued image-generation API for each slide image, localize finished images, then package locally.
-2. **Setup-needed prompt/spec mode**: if Yali key/runtime setup is incomplete, create the presentation plan and slide image prompts only, then report the concrete missing setup item.
+2. **Compatible fallback path**: only when explicitly allowed, use the archived Yali-built slide prompts with the OpenAI-compatible fallback executor, localize finished images, then package locally.
+3. **Setup-needed prompt/spec mode**: if no permitted executor is available, create the presentation plan and slide image prompts only, then report the concrete missing setup item.
 
-Slide images go through the Yali API and `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs` before packaging.
+Slide images go through the selected image executor and `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs` before packaging.
 
 ## Output Contract
 
@@ -65,6 +67,6 @@ PPT workflow needed: <dedicated skill or local scripts>
 Topic: <user topic>
 Audience: <audience>
 Suggested style: <visual direction>
-Generation path: <Yali API | setup-needed prompt/spec mode>
+Generation path: <Yali API | compatible fallback | setup-needed prompt/spec mode>
 Next artifact: slides_plan + per-slide image prompts
 ```

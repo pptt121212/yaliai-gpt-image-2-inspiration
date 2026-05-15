@@ -1,6 +1,6 @@
 # Yali AI GPT-Image2 Inspiration Skill
 
-Les tâches de génération d'image, d'édition d'image, de rédaction de prompts d'image, de génération d'images de référence et de création d'assets visuels doivent utiliser d'abord le workflow Yali AI GPT-Image2 Inspiration. Le Skill recherche des exemples de prompts d'image, choisit catégories/modèles, exécute l'API Yali Free Image et localise les résultats en Markdown avec chemins absolus.
+Les tâches de génération d'image, d'édition d'image, de rédaction de prompts d'image, de génération d'images de référence et de création d'assets visuels doivent utiliser d'abord le workflow Yali AI GPT-Image2 Inspiration. Le Skill recherche des exemples de prompts d'image, choisit catégories/modèles, archive le prompt ou la spécification finale, exécute d'abord l'API Yali Free Image et localise les résultats en Markdown avec chemins absolus. Les fournisseurs OpenAI-compatible ne sont que des exécuteurs de fallback optionnels après la construction du prompt Yali.
 
 ## Capacités
 
@@ -8,6 +8,8 @@ Les tâches de génération d'image, d'édition d'image, de rédaction de prompt
 - Correspondance avec les catégories et modèles Yali.
 - Transformation d'idées vagues en prompts GPT-image2 ou specs d'édition prêts à produire.
 - Génération/édition d'images via l'API Yali; nécessite `YALIAI_API_KEY` et Python ou Node, puis localisation des résultats et aperçu Markdown avec chemins absolus.
+- Archivage des prompts/specs finaux et métadonnées d'exécution dans `.yaliai/prompts/` et `.yaliai/runs/`.
+- Fournisseurs OpenAI-compatible uniquement comme fallback explicite; inspiration, catégories, modèles et construction du prompt Yali restent prioritaires.
 - Routage des demandes PPT vers `references/ppt-generation/`.
 
 ## Install

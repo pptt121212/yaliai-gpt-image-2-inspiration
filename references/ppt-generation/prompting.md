@@ -40,4 +40,5 @@ Avoid: clutter, tiny text, decorative noise
 ## Routing Notes
 
 - If `YALIAI_API_KEY` exists, use the Yali queued image API for each slide image and localize each finished result.
-- If Yali key/runtime setup is incomplete, return slide prompts and the concrete setup item instead of claiming to generate files.
+- If an explicit compatible fallback is allowed, use the archived Yali-built slide prompts with the compatible executor and localize each finished result.
+- If no permitted executor is available, return slide prompts and the concrete setup item instead of claiming to generate files.

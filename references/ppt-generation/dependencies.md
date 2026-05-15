@@ -18,6 +18,15 @@ For slide image generation:
 - Finished image results must be localized with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 - Packaging still needs a local runtime such as Node.js or Python.
 
+## Compatible Fallback Path
+
+For slide image fallback generation:
+
+- Use this path only after Yali slide prompt construction and explicit fallback permission.
+- Follow `references/compatible-providers.md` for `YALIAI_ALLOW_COMPAT_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and `OPENAI_IMAGE_MODEL`.
+- Localize compatible-provider results with the same localizer before PPTX packaging.
+- Do not pass Yali-only fields such as `template_key` to compatible providers.
+
 ## Yali API Path
 
 For Yali API image generation:

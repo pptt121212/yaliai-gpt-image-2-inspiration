@@ -10,7 +10,7 @@ The PPT workflow owns:
 2. Slide planning: create `slides_plan.md` for human review and `slides_plan.json` for scripts.
 3. Visual direction: choose a style, template, or reference direction.
 4. Per-slide prompt writing: turn each slide into a 16:9 image prompt.
-5. Image generation: use Yali API, then localize image results.
+5. Image generation: use Yali API first, or a permitted compatible fallback, then localize image results.
 6. Packaging: create local HTML preview and image-based PPTX.
 
 This image inspiration skill supports only the visual parts: inspiration search, category/template guidance, prompt writing, and image generation path selection.
@@ -46,7 +46,8 @@ outputs/<timestamp>/
 Use one path consistently for a deck:
 
 - **Yali API**: the agent calls Yali queued image generation with `YALIAI_API_KEY`, waits for completed images, localizes them with the Python or Node localizer, then packages locally.
-- **Setup-needed prompt/spec mode**: if Yali key/runtime setup is incomplete, produce the slide plan and per-slide prompts without claiming to generate files.
+- **Compatible fallback**: only when explicitly allowed by the user or `YALIAI_ALLOW_COMPAT_PROVIDER=1`, use the archived Yali-built slide prompts with an OpenAI-compatible image endpoint, localize results, then package locally.
+- **Setup-needed prompt/spec mode**: if no permitted image executor is available, produce the slide plan and per-slide prompts without claiming to generate files.
 
 ## Handoff Message
 
@@ -58,6 +59,6 @@ Topic: <topic>
 Audience: <audience>
 Slide count: <count or auto>
 Suggested style: <style>
-Generation path: <Yali API | setup-needed prompt/spec mode>
+Generation path: <Yali API | compatible fallback | setup-needed prompt/spec mode>
 Next artifact: slides_plan + per-slide image prompts
 ```
