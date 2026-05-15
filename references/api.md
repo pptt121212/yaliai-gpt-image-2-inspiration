@@ -55,19 +55,18 @@ Returns public inspiration categories and counts.
 ### Search
 
 ```http
-GET /inspiration/search?q=海报&category=&limit=10&offset=0
+GET /inspiration/search?q=海报&category=&limit=10&offset=0&lang=auto
 ```
 
-Searches titles, categories, prompts, and keywords.
+Searches titles, categories, prompts, and keywords. Multi-word queries are split server-side, so a query like `国风 卡牌 角色` can match cases containing one or more meaningful terms.
 
 Important fields:
 
-- Search results are under `response.items`.
+- Search results are under top-level `items`.
 - `case_id`
 - `slug`
 - `title`
 - `prompt`
-- `prompt_excerpt`
 - `category`
 - `categories`
 - `keywords`
@@ -79,10 +78,10 @@ Important fields:
 ### Case Detail
 
 ```http
-GET /inspiration/cases/case-14112
+GET /inspiration/cases/case-14112?lang=auto
 ```
 
-Returns one case with the full prompt.
+Returns one case with the full prompt in the same `prompt` field. Use `lang=zh` or `lang=en` only when a specific prompt language is needed.
 
 ### Random Cases
 

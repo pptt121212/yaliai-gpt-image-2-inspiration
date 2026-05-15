@@ -50,7 +50,12 @@ def normalize_search(payload: dict[str, Any]) -> dict[str, Any]:
     for item in items:
         if not isinstance(item, dict):
             continue
-        prompt = item.get("prompt") if isinstance(item.get("prompt"), str) else ""
+        prompt = ""
+        for key in ("prompt", "prompt_excerpt", "prompt_zh", "prompt_en"):
+            value = item.get(key)
+            if isinstance(value, str) and value.strip():
+                prompt = value.strip()
+                break
         normalized.append(
             {
                 "case_id": item.get("case_id"),
@@ -59,7 +64,7 @@ def normalize_search(payload: dict[str, Any]) -> dict[str, Any]:
                 "category": item.get("category"),
                 "categories": item.get("categories"),
                 "keywords": item.get("keywords"),
-                "prompt_excerpt": item.get("prompt_excerpt") or prompt[:220],
+                "prompt": prompt,
                 "image_url": item.get("image_url"),
                 "thumb_url": item.get("thumb_url"),
                 "detail_url": item.get("detail_url"),

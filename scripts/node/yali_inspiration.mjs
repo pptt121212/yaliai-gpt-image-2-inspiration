@@ -80,6 +80,12 @@ function getJson(url) {
 
 function normalizeSearch(payload) {
   const items = payload?.items || payload?.response?.items || [];
+  const promptFor = (item) => {
+    for (const key of ["prompt", "prompt_excerpt", "prompt_zh", "prompt_en"]) {
+      if (typeof item[key] === "string" && item[key].trim()) return item[key].trim();
+    }
+    return "";
+  };
   return {
     ok: true,
     count: Array.isArray(items) ? items.length : 0,
@@ -90,7 +96,7 @@ function normalizeSearch(payload) {
       category: item.category,
       categories: item.categories,
       keywords: item.keywords,
-      prompt_excerpt: item.prompt_excerpt || (typeof item.prompt === "string" ? item.prompt.slice(0, 220) : undefined),
+      prompt: promptFor(item),
       image_url: item.image_url,
       thumb_url: item.thumb_url,
       detail_url: item.detail_url,
