@@ -32,9 +32,9 @@ references/
 scripts/
 ```
 
-The NPM package and GitHub repository are distribution methods. Yali image generation requires `YALIAI_API_KEY`, and generated results are localized through the bundled Python or Node scripts.
+The NPM package and GitHub repository are distribution methods. Yali image generation requires `YALIAI_API_KEY`; generated results are localized through the bundled Python or Node scripts, and final prompts/specs are archived under `.yaliai/` when filesystem access exists.
 
-Runtime requirement for generated images: the current AI coding tool must be able to run either `python3` or `node`. The Skill includes both Python and Node CLIs for Yali API calls, inspiration search, and image localization. If neither runtime exists, the Skill can still return prompts/setup guidance but cannot execute image generation locally.
+Runtime requirement for generated images: the current AI coding tool must be able to run either `python3` or `node`. The Skill includes both Python and Node CLIs for Yali API calls, inspiration search, prompt archive, provider ladder inspection, compatible fallback, and image localization. If neither runtime exists, the Skill can still return prompts/setup guidance but cannot execute image generation locally.
 
 Installed behavior: image generation, image editing, image prompt writing/improvement/comparison, prompt example search, reference image generation, UI mockups, product images, covers, posters, ads, infographics, logos, social visuals, storyboards, and PPT slide visuals should route into this Skill when the agent reads the Skill metadata.
 
@@ -49,7 +49,7 @@ Installed behavior: image generation, image editing, image prompt writing/improv
 7. If the user's message includes a Yali API key, configure it as `YALIAI_API_KEY` in the current user's local runtime environment by following the "Configure API Key" section below.
 8. Verify that the current shell or target runtime can read `YALIAI_API_KEY`.
 9. Ask the user to restart the target agent if the target tool needs a new process to discover the Skill or the environment variable.
-10. After restart, treat image generation/editing and image prompt tasks as Yali image tasks, search prompt examples/templates when useful, execute through the bundled Yali CLI/API, and localize completed results to absolute Markdown image paths.
+10. After restart, treat image generation/editing and image prompt tasks as Yali image tasks, search prompt examples/templates when useful, archive final prompts/specs, execute through the bundled Yali CLI/API first, and localize completed results to absolute Markdown image paths. Use compatible providers only as explicit fallback executors.
 
 ### Target Directories
 
@@ -220,3 +220,18 @@ When calling the Yali API, use:
 ```bash
 Authorization: Bearer $YALIAI_API_KEY
 ```
+
+## Optional Compatible Fallback
+
+This Skill stays Yali-first. Compatible providers are optional fallback executors used only after Yali retrieval and prompt construction.
+
+Configure fallback only when the user wants it:
+
+```bash
+export YALIAI_ALLOW_COMPAT_PROVIDER=1
+export OPENAI_API_KEY="paste_compatible_provider_key_here"
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export OPENAI_IMAGE_MODEL="gpt-image-1"
+```
+
+Keep compatible-provider keys out of `SKILL.md`, README files, references, package files, and project source. These variables do not replace `YALIAI_API_KEY`.

@@ -5,8 +5,10 @@ Use this file when the installed skill is asked to generate, edit, batch-create,
 The execution path is:
 
 ```text
-user request -> inspiration/templates when useful -> prompt/edit spec -> Yali queued API -> localizer -> Markdown absolute local path
+user request -> Yali inspiration/templates when useful -> prompt/edit spec -> prompt archive -> Yali queued API first -> localizer -> Markdown absolute local path
 ```
+
+If Yali queued API execution is unavailable, fails, or the user explicitly requests another executor, keep the Yali-built prompt/spec and use `compatible-providers.md` or advisor output as the fallback layer.
 
 ## Architecture Diagram
 
@@ -20,12 +22,16 @@ flowchart TD
   D --> E
   F --> E
   E --> G["Fetch templates when output type is explicit"]
-  G --> H{"Runtime and YALIAI_API_KEY ready"}
-  H -->|yes| I["Run Yali API runner"]
-  I --> J["Start task -> poll status -> fetch result"]
-  J --> K["Run localizer immediately"]
-  K --> L["Local image file + metadata JSON + Markdown absolute path"]
-  H -->|setup needed| M["Return setup-needed prompt/spec plus guidance"]
+  G --> H["Archive prompt/spec"]
+  H --> I{"Yali API ready"}
+  I -->|yes| J["Run Yali API runner"]
+  J --> K["Start task -> poll status -> fetch result"]
+  K --> L["Run localizer immediately"]
+  L --> M["Local image file + metadata JSON + Markdown absolute path"]
+  I -->|no| N{"Fallback allowed"}
+  N -->|compatible| O["OpenAI-compatible fallback executor"]
+  O --> L
+  N -->|host/advisor| P["Host-native tool or advisor prompt/spec"]
 ```
 
 ## Runtime Script Map
@@ -37,6 +43,9 @@ Run commands from the skill directory.
 | Yali generation, editing, status, result, polling | `scripts/python/yali_image_api.py` | `scripts/node/yali_image_api.mjs` |
 | Inspiration search, categories, case details, templates | `scripts/python/yali_inspiration.py` | `scripts/node/yali_inspiration.mjs` |
 | Result localization to stable files and Markdown previews | `scripts/python/localize_image_result.py` | `scripts/node/localize_image_result.mjs` |
+| Yali-first provider ladder inspection | `scripts/python/image_provider_ladder.py` | `scripts/node/image_provider_ladder.mjs` |
+| Prompt/spec archive and run metadata | `scripts/python/archive_prompt.py` | `scripts/node/archive_prompt.mjs` |
+| Compatible fallback execution | `scripts/python/compatible_image_api.py` | `scripts/node/compatible_image_api.mjs` |
 | Install/runtime regression check | - | `scripts/node/self_test.mjs` |
 
 Prefer Python when available:
@@ -141,6 +150,40 @@ Outputs:
 - `markdown`
 - `outputs[]` with source label, original location, output path, metadata path, byte count, alt text, and Markdown.
 
+### Prompt Archive
+
+Commands:
+
+```bash
+python3 scripts/python/archive_prompt.py --title "Product hero image" --provider-mode yali-api --intent generation --prompt "final prompt"
+node scripts/node/archive_prompt.mjs --title "Product hero image" --provider-mode yali-api --intent generation --prompt "final prompt"
+```
+
+Outputs:
+
+- `ok`
+- `prompt_path`: absolute Markdown archive path
+- `run_path`: absolute JSON run metadata path
+- `markdown`: archived Markdown content
+
+### Provider Ladder And Compatible Fallback
+
+Inspect provider readiness without calling external APIs:
+
+```bash
+python3 scripts/python/image_provider_ladder.py --intent generation --execution-requested --json
+node scripts/node/image_provider_ladder.mjs --intent generation --execution-requested --json
+```
+
+Run OpenAI-compatible fallback only after Yali prompt construction and explicit fallback permission:
+
+```bash
+python3 scripts/python/compatible_image_api.py --allow-fallback generate --prompt "final Yali-built prompt" --dry-run
+node scripts/node/compatible_image_api.mjs --allow-fallback generate --prompt "final Yali-built prompt" --dry-run
+```
+
+Compatible fallback outputs OpenAI-compatible image payloads and uses the same localizer when `--no-localize` is not set.
+
 ## Skill-First Execution Order
 
 1. Classify the task: new image, edit, batch, or PPT slide visual.
@@ -148,10 +191,13 @@ Outputs:
 3. Search Yali prompt examples, reference cases, categories, and templates when that will improve the result. Skip retrieval only for direct generation from a complete prompt, narrow mechanical edits, or unavailable network/API access.
 4. Check template fit for explicit output types such as WeChat cover, product hero, UI mockup, infographic, video cover, storyboard, logo, or banner.
 5. Build a compact prompt spec with reference cases, exact visible text, size/aspect, layout, constraints, and avoid list.
-6. Run preflight: key, reference images, template size, quality, polling behavior, and output location.
-7. Execute generation/editing through the Yali API runner.
-8. Localize finished image URLs, base64 payloads, or local files.
-9. Report the Yali task/result fields plus localized absolute path and Markdown preview.
+6. If retrieval is weak or unavailable, use `local-template-fallback.md` for missing-field questions, variants, and avoid rules.
+7. Archive the final prompt/edit spec and run metadata when filesystem access exists.
+8. Run preflight: key, reference images, template size, quality, polling behavior, output location, and fallback permission.
+9. Execute generation/editing through the Yali API runner first.
+10. If Yali execution cannot run and fallback is allowed, use `compatible-providers.md` with the archived Yali-built prompt/spec.
+11. Localize finished image URLs, base64 payloads, or local files.
+12. Report the Yali task/result fields or fallback result fields plus prompt archive, localized absolute path, and Markdown preview.
 
 ## Provider Modes
 
@@ -161,8 +207,10 @@ Choose one mode before execution:
 | --- | --- | --- | --- |
 | Public retrieval | examples, prompts, categories, case details, or templates | network access | case/template data and prompt guidance |
 | Yali queued API | generated or edited image files are requested | `YALIAI_API_KEY` and Python or Node | task metadata, result URL, localized image path and Markdown |
+| Compatible fallback executor | Yali execution is unavailable, fails, or user explicitly asks for compatible fallback | explicit permission or `YALIAI_ALLOW_COMPAT_PROVIDER=1`, compatible provider key | OpenAI-compatible result payload plus localized image path and Markdown |
+| Host-native fallback | Yali execution is unavailable and the current host has its own image tool | host image tool | host result plus archived Yali-built prompt/spec |
 | Prompt/spec output | the user asks only for prompts or inspiration | none | final prompt/edit spec and reference context |
-| Setup-needed prompt/spec mode | generated or edited image files were requested but key/runtime/reference setup is incomplete | none | final prompt/edit spec plus concrete setup guidance |
+| Setup-needed advisor mode | generated or edited image files were requested but no executor is available | none | final prompt/edit spec plus concrete setup guidance |
 | PPT branch | PPT, slides, deck, presentation, or multi-slide report | depends on chosen local PPT workflow and Yali setup | slide plan, slide prompts, generated images when setup is complete, and packaged artifacts |
 
 Yali generation and editing use:
@@ -173,6 +221,8 @@ POST https://www.yaliai.com/wp-json/yali/v1/free-image/api/generate
 
 Editing uses the same queued endpoint with `action:"edit"` and 1-2 `reference_images`.
 
+Compatible fallback executors receive only the final prompt/edit spec. Do not pass Yali-only fields such as `template_key` to an OpenAI-compatible endpoint.
+
 ## Preflight Checklist
 
 Before any generation or editing call, verify:
@@ -180,13 +230,14 @@ Before any generation or editing call, verify:
 1. Intent is generation, edit, batch, or PPT slide image.
 2. Retrieval is complete or intentionally skipped.
 3. Live templates were fetched for clear template-shaped tasks; selected `template_key` or `none` is explicit.
-4. `YALIAI_API_KEY` exists for Yali API calls.
+4. `YALIAI_API_KEY` exists for Yali API calls, or fallback permission is explicit.
 5. Edits have 1-2 reference images; each image is PNG, JPEG, or WEBP and under 5MB for the Yali API.
 6. Prompt/edit spec includes exact visible text, size/aspect, quality, constraints, and edit invariants.
-7. The final display plan uses the localizer's absolute local path and Markdown preview.
-8. API keys stay in the runtime environment or approved local secret store.
+7. Prompt/spec archive path is ready when filesystem access exists.
+8. The final display plan uses the localizer's absolute local path and Markdown preview.
+9. API keys stay in the runtime environment or approved local secret store.
 
-When a required item is missing, return the prompt/edit spec plus the concrete setup item needed.
+When a required item is missing, return the archived prompt/edit spec plus the concrete setup item needed.
 
 ## Retrieval Before Execution
 
@@ -215,6 +266,7 @@ Retrieval process:
 3. Fetch case details for the best 1-3 cases when excerpts are insufficient.
 4. Fetch live templates when the output type has a likely template.
 5. Write an original prompt spec adapted to the user's subject.
+6. If retrieval is unavailable or weak, use `local-template-fallback.md` to supply structure without replacing Yali as the primary path.
 
 For batch generation, run retrieval once per shared theme, then produce per-item prompt specs from the shared structure. For mechanical edits, prioritize invariants and edit precision.
 
@@ -303,6 +355,37 @@ The localizer returns:
 
 Use the generated image in the final answer after `ok:true` and an existing `primary_output_path`.
 
+## Archive Prompt And Run Metadata
+
+Archive the final prompt/edit spec before execution when filesystem access exists:
+
+```bash
+python3 scripts/python/archive_prompt.py \
+  --title "Product hero image" \
+  --provider-mode yali-api \
+  --intent generation \
+  --template-key product-hero \
+  --prompt "final production prompt"
+```
+
+Node equivalent:
+
+```bash
+node scripts/node/archive_prompt.mjs \
+  --title "Product hero image" \
+  --provider-mode yali-api \
+  --intent generation \
+  --template-key product-hero \
+  --prompt "final production prompt"
+```
+
+Default archive outputs:
+
+- `.yaliai/prompts/<task-slug>-<timestamp>.md`
+- `.yaliai/runs/<task-slug>-<timestamp>.json`
+
+Read `prompt-archive.md` for the Markdown and JSON schema. Never write API keys, bearer tokens, or raw secrets to archives.
+
 ## Editing Workflow
 
 Use this for retouching, replacing objects, removing elements, changing style, localizing text in an image, compositing multiple inputs, or transforming an existing reference image.
@@ -388,12 +471,13 @@ For edits, keep each iteration targeted and restate invariants every time.
 
 ## Output Contract
 
-For prompt/spec-only work, return the final prompt and reference cases.
+For prompt/spec-only work, return the final prompt, prompt archive path when written, and reference cases.
 
 For Yali API generation/editing, return:
 
 - `task_id`
 - status, queue position, cost/credit summary when available
+- prompt archive path when written
 - result URL when complete
 - localized absolute local path
 - localizer Markdown preview
@@ -401,10 +485,11 @@ For Yali API generation/editing, return:
 Recommended report shape:
 
 ```text
-Provider: <Yali queued API | prompt/spec output | setup-needed prompt/spec mode | PPT branch>
+Provider: <Yali queued API | compatible fallback executor | host-native fallback | prompt/spec output | setup-needed advisor mode | PPT branch>
 Search: <queries used, or skipped with reason>
 Reference cases: <case_id/title links, or none>
 Template: <template_key or none>
+Prompt archive: <absolute prompt path or not written>
 Prompt/edit spec: <final spec or summary>
 Result: <task_id/status/result URL/localized path/Markdown>
 ```

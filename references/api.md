@@ -40,6 +40,8 @@ This API is the generation/editing path for this Skill. It returns Yali task IDs
 
 Yali editing uses the same queued generation endpoint. Send `action:"edit"` and provide 1-2 `reference_images`.
 
+Compatible fallback execution is separate from Yali API. It may use `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and `OPENAI_IMAGE_MODEL`, but only after the Yali-built prompt/spec has been archived and fallback has been explicitly allowed.
+
 ## Public Inspiration Endpoints
 
 ### Categories
@@ -119,7 +121,7 @@ Response shape:
 
 Important: live templates are under `response.templatePresets`.
 
-Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the offline template guide in `prompt-workflow.md`, because the website may add or revise templates. For broad or ambiguous creative requests, omit `template_key`.
+Use this endpoint before generation when the user's use case clearly matches a Yali template. Prefer the live endpoint over the offline template guide in `prompt-workflow.md`, because the website may add or revise templates. For broad or ambiguous creative requests, omit `template_key`. If the prompt still lacks structure after retrieval, use the local fallback guide in `local-template-fallback.md` rather than replacing the live template flow.
 
 Important template fields:
 
@@ -327,6 +329,8 @@ Important result paths:
 - Output format: `response.output_format`
 
 After a Yali task completes, report the image URL and, when filesystem access exists, download it to a stable local path for the current workspace/session. Different AI coding tools preview files differently; the stable requirement is that the agent provides the local path and original URL.
+
+Before any execution path, archive the final prompt/spec using `prompt-archive.md` when filesystem access exists.
 
 For hosts that support Markdown image previews, this format is recommended:
 

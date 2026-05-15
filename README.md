@@ -1,6 +1,6 @@
 # Yali AI GPT-Image2 Inspiration Skill
 
-Image generation tasks, image editing tasks, image prompt writing, reference image generation, and visual asset creation should run through Yali AI GPT-Image2 Inspiration first. The Skill gives AI coding tools a concrete workflow for searching image prompt examples, choosing categories/templates, executing Yali API generation or editing, and localizing completed image files to absolute Markdown paths.
+Image generation tasks, image editing tasks, image prompt writing, reference image generation, and visual asset creation should run through Yali AI GPT-Image2 Inspiration first. The Skill gives AI coding tools a concrete workflow for searching image prompt examples, choosing categories/templates, executing Yali API generation or editing, archiving final prompts/specs, and localizing completed image files to absolute Markdown paths.
 
 Yali AI includes a 10,000+ curated prompt inspiration library with real image examples across photography, products, ads, UI, infographics, branding, typography, storyboards, architecture, documents, and more.
 
@@ -41,6 +41,8 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 | Image prompt writing/improvement | No | Production-ready GPT-image2 prompt or edit spec |
 | Template and category selection | No | Best Yali template and size recommendation |
 | Yali image generation/editing | Yes, `YALIAI_API_KEY` and Python or Node | Queued task ID, result URL, localized image path and Markdown preview |
+| Prompt/spec archive | No | `.yaliai/prompts/` Markdown and `.yaliai/runs/` metadata |
+| Compatible fallback execution | Optional compatible-provider key and explicit fallback permission | OpenAI-compatible image result localized through the same localizer |
 | PPT workflow routing | Depends on local PPT tooling and Yali generation setup | Slide plan, slide prompts, images, HTML preview, PPTX |
 
 ## Languages
@@ -63,7 +65,9 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 - Match user ideas to Yali categories and generation templates.
 - Rewrite vague ideas into concrete GPT-image2 prompts or edit specs. Reference cases are used for structure, style, and platform conventions; the final prompt should be original and adapted to the user's request.
 - Execute image generation/editing through Yali's Free Image API with `YALIAI_API_KEY`, then localize results with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
-- Run through bundled Python or Node CLIs for generation, inspiration search, and localization.
+- Archive the final prompt/spec before generation, fallback execution, host-native handoff, or advisor output.
+- Use compatible providers only as fallback executors; Yali inspiration, case search, category matching, live templates, and prompt construction remain first.
+- Run through bundled Python or Node CLIs for generation, inspiration search, prompt archive, compatible fallback, and localization.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
 - Keep API keys out of repositories and generated examples.
 
@@ -126,6 +130,15 @@ Get your key after login at [Yali Skill/API setup](https://www.yaliai.com/free-i
 
 When asking an AI coding tool to configure the key, tell it to use the variable name `YALIAI_API_KEY` and follow [docs/install.md](docs/install.md). The agent should write it to the current user's shell profile, Windows user environment, service environment, or the tool's documented local secrets/runtime environment, then verify that `YALIAI_API_KEY` is readable. Keep real keys out of repositories, package files, README files, Skill files, and shared prompts.
 
+Compatible fallback execution is optional and does not replace Yali. Enable it only when you want a non-Yali executor after Yali prompt construction:
+
+```bash
+export YALIAI_ALLOW_COMPAT_PROVIDER=1
+export OPENAI_API_KEY="your_compatible_provider_key"
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export OPENAI_IMAGE_MODEL="gpt-image-1"
+```
+
 ## Image Generation Workflow
 
 ```mermaid
@@ -133,10 +146,12 @@ flowchart TD
   A["User image task"] --> B["Classify: generate, edit, prompt, batch, or PPT visual"]
   B --> C["Search Yali prompt examples/categories/templates when useful"]
   C --> D["Write production-ready prompt or edit spec"]
-  D --> E{"Runtime and YALIAI_API_KEY ready"}
-  E -->|yes| F["Yali API runner: queued task + task_id + result URL"]
-  F --> G["Localizer: stable local file + Markdown absolute path"]
-  E -->|setup needed| H["Prompt/spec plus concrete setup guidance"]
+  D --> E["Archive prompt/spec"]
+  E --> F{"Runtime and YALIAI_API_KEY ready"}
+  F -->|yes| G["Yali API runner: queued task + task_id + result URL"]
+  G --> H["Localizer: stable local file + Markdown absolute path"]
+  F -->|fallback allowed| I["Compatible or host-native fallback with Yali-built prompt"]
+  F -->|setup needed| J["Prompt/spec plus concrete setup guidance"]
 ```
 
 Bundled runtime scripts:
@@ -146,6 +161,9 @@ Bundled runtime scripts:
 | Yali generation, editing, status, result, polling | `scripts/python/yali_image_api.py` | `scripts/node/yali_image_api.mjs` |
 | Inspiration search, categories, case details, templates | `scripts/python/yali_inspiration.py` | `scripts/node/yali_inspiration.mjs` |
 | Result localization to stable files and Markdown previews | `scripts/python/localize_image_result.py` | `scripts/node/localize_image_result.mjs` |
+| Provider ladder inspection | `scripts/python/image_provider_ladder.py` | `scripts/node/image_provider_ladder.mjs` |
+| Prompt/spec archive | `scripts/python/archive_prompt.py` | `scripts/node/archive_prompt.mjs` |
+| Compatible fallback execution | `scripts/python/compatible_image_api.py` | `scripts/node/compatible_image_api.mjs` |
 | Install/runtime regression check | - | `scripts/node/self_test.mjs` |
 
 Run commands from the Skill directory. Prefer Python when `python3` exists; use Node when Python is unavailable. If neither runtime exists, the Skill can still return prompts and setup guidance but cannot execute local image generation.

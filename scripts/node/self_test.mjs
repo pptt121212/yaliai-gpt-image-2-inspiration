@@ -27,6 +27,9 @@ function scanStaleText() {
     "README.md",
     "references/image-generation-workflow.md",
     "references/prompt-workflow.md",
+    "references/compatible-providers.md",
+    "references/prompt-archive.md",
+    "references/local-template-fallback.md",
     "references/ppt-generation/README.md",
     "references/ppt-generation/dependencies.md",
     "references/ppt-generation/workflow.md",
@@ -49,8 +52,6 @@ function scanStaleText() {
     new RegExp("inspiration/cases\\?search="),
     new RegExp("per_" + "page="),
     /Codex[^.\n]*(?:native|image generation)/i,
-    /native[^.\n]*image generation/i,
-    /host-native/i,
     /image_gen/,
     /NPM 备用/,
     /Prompt-only fallback/,
@@ -111,6 +112,7 @@ function scanRequiredRoutingText() {
       patterns: [
         /Image generation, image editing, image prompt writing, and visual asset requests use this workflow first\./,
         /For image generation and image editing, prepare and execute through the bundled Yali CLI\/API path first\./,
+        /compatible or host-native execution only as an explicit fallback/i,
       ],
     },
     {
@@ -125,6 +127,7 @@ function scanRequiredRoutingText() {
       patterns: [
         /Image generation tasks, image editing tasks, image prompt writing/i,
         /localized image path and Markdown preview/i,
+        /archiving final prompts\/specs/i,
       ],
     },
     {
@@ -132,6 +135,22 @@ function scanRequiredRoutingText() {
       patterns: [
         /Generate image, create image, draw image, render image, and produce image are generation requests\./,
         /Edit image, retouch image, inpaint image, mask image/i,
+        /Yali-first provider ladder/i,
+        /Compatible fallback execution/i,
+      ],
+    },
+    {
+      file: "references/prompt-archive.md",
+      patterns: [
+        /Prompt Archive/,
+        /\.yaliai\/prompts\/<task-slug>-<timestamp>\.md/,
+      ],
+    },
+    {
+      file: "references/compatible-providers.md",
+      patterns: [
+        /Compatible Provider Fallback/,
+        /Yali remains the primary workflow/,
       ],
     },
   ];
@@ -157,10 +176,16 @@ checks.push(run("node-localizer-self-test", "node", ["scripts/node/localize_imag
 checks.push(run("node-yali-api-help", "node", ["scripts/node/yali_image_api.mjs", "--help"]));
 checks.push(run("node-inspiration-help", "node", ["scripts/node/yali_inspiration.mjs", "--help"]));
 checks.push(run("node-localizer-help", "node", ["scripts/node/localize_image_result.mjs", "--help"]));
+checks.push(run("node-provider-ladder-help", "node", ["scripts/node/image_provider_ladder.mjs", "--json"]));
+checks.push(run("node-archive-prompt-dry-run", "node", ["scripts/node/archive_prompt.mjs", "--title", "Test prompt", "--provider-mode", "advisor", "--intent", "prompt", "--prompt", "test prompt", "--dry-run"]));
+checks.push(run("node-compatible-fallback-dry-run", "node", ["scripts/node/compatible_image_api.mjs", "--allow-fallback", "generate", "--prompt", "test prompt", "--dry-run"]));
 checks.push(run("node-yali-api-dry-run", "node", ["scripts/node/yali_image_api.mjs", "generate", "--prompt", "测试小猫", "--quality", "medium", "--size-key", "1024x1024", "--dry-run"]));
 checks.push(run("node-inspiration-dry-run", "node", ["scripts/node/yali_inspiration.mjs", "search", "--query", "test", "--limit", "1", "--dry-run"]));
 if (commandExists("python3")) {
   checks.push(run("python-localizer-self-test", "python3", ["scripts/python/localize_image_result.py", "--self-test"]));
+  checks.push(run("python-provider-ladder-help", "python3", ["scripts/python/image_provider_ladder.py", "--json"]));
+  checks.push(run("python-archive-prompt-dry-run", "python3", ["scripts/python/archive_prompt.py", "--title", "Test prompt", "--provider-mode", "advisor", "--intent", "prompt", "--prompt", "test prompt", "--dry-run"]));
+  checks.push(run("python-compatible-fallback-dry-run", "python3", ["scripts/python/compatible_image_api.py", "--allow-fallback", "generate", "--prompt", "test prompt", "--dry-run"]));
   checks.push(run("python-yali-api-dry-run", "python3", ["scripts/python/yali_image_api.py", "generate", "--prompt", "测试小猫", "--quality", "medium", "--size-key", "1024x1024", "--dry-run"]));
   checks.push(run("python-inspiration-dry-run", "python3", ["scripts/python/yali_inspiration.py", "search", "--query", "test", "--limit", "1", "--dry-run"]));
 }

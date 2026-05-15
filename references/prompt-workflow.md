@@ -95,6 +95,7 @@ If all searches are weak or empty:
 
 - Continue with category recipe and template reasoning unless the user only asked to browse existing cases.
 - Use the category recipe and template list to classify the task.
+- Read `local-template-fallback.md` for the nearest category when the prompt still lacks structure, missing-field questions, variants, or an avoid list.
 - If a live template clearly fits, use that `template_key` and write an original prompt from the user's request.
 - If no template fits, omit `template_key` and write the best original prompt using the prompt construction checklist.
 - In the report, state that search results were weak or empty and that the final prompt was generated from the user's request plus category/template reasoning.
@@ -239,13 +240,16 @@ When referencing cases:
 If the user wants only a prompt:
 
 - Return a final copyable prompt.
+- Archive the prompt/spec when filesystem access exists; see `prompt-archive.md`.
 - Include 2-5 related case links when useful.
 
 If the user wants generation:
 
-- First choose Yali queued API, prompt/spec output, or setup-needed prompt/spec mode using `image-generation-workflow.md`.
+- First choose the Yali-first provider ladder using `image-generation-workflow.md`.
 - For Yali API generation, check that `YALIAI_API_KEY` is available or ask them to get it from `https://www.yaliai.com/free-image/skill/`.
+- Archive the final prompt/spec before execution when filesystem access exists.
 - Call the generation endpoint through `scripts/python/yali_image_api.py` or `scripts/node/yali_image_api.mjs` with the selected template and prompt only on the Yali API path.
+- Use compatible fallback only when Yali execution is unavailable, fails, or the user explicitly asks for it. Compatible providers receive the final prompt only, not Yali-only fields such as `template_key`.
 - Return `task_id`, status, queue position, and cost for Yali API tasks.
 - Poll only if the user wants you to wait.
 
@@ -253,5 +257,6 @@ If the user wants generation:
 
 - Keep real keys out of generated files.
 - Use `$YALIAI_API_KEY` in shell examples.
+- Use `$OPENAI_API_KEY`, `$OPENAI_BASE_URL`, and `$OPENAI_IMAGE_MODEL` only for compatible fallback examples.
 - If producing repository files, put key instructions in `.env.example`, not `.env`.
 - If the user pastes a key, use it only for the current request unless they explicitly ask to save it locally.
