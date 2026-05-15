@@ -1,6 +1,6 @@
 {
   "name": "@yaliai/gpt-image-2-inspiration",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Agent skill that routes image generation, image editing, image prompts, prompt examples, templates, and PPT visuals through Yali AI GPT-Image2.",
   "type": "module",
   "scripts": {
