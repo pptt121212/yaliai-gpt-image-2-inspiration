@@ -8,8 +8,9 @@
 - Сопоставление идей с категориями и шаблонами Yali.
 - Преобразование расплывчатых идей в конкретные GPT-image2 prompts или specs для редактирования.
 - Генерация/редактирование изображений выполняется через Yali API; требуется `YALIAI_API_KEY` и Python или Node, затем результаты локализуются и показываются как Markdown-превью с абсолютными путями.
+- Полная preflight-проверка Yali API, OpenAI-compatible fallback, host-native image tool и advisor mode; отсутствие ключа или `401` / `invalid_api_key` не завершает процесс сразу.
 - Архивация финальных prompts/specs и run metadata в `.yaliai/prompts/` и `.yaliai/runs/`.
-- OpenAI-compatible providers используются только как явный fallback; inspiration, категории, шаблоны и построение prompt в Yali остаются первыми.
+- OpenAI-compatible providers и host-native image tools используются только как fallback-исполнители; inspiration, категории, шаблоны и построение prompt в Yali остаются первыми.
 - PPT-запросы направляются в `references/ppt-generation/`.
 
 ## Install

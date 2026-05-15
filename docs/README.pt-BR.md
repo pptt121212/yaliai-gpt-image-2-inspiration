@@ -8,8 +8,9 @@ Tarefas de geracao de imagens, edicao de imagens, escrita de prompts de imagem, 
 - Correspondencia com categorias e modelos da Yali.
 - Transformacao de ideias vagas em prompts GPT-image2 ou especificacoes de edicao concretas.
 - Geracao/edicao de imagens via API Yali; requer `YALIAI_API_KEY` e Python ou Node, depois localiza os resultados e mostra preview Markdown com caminhos absolutos.
+- Preflight completo da API Yali, fallback OpenAI-compatible, ferramenta host-native de imagem e modo advisor; chave ausente ou `401` / `invalid_api_key` nao encerra o fluxo diretamente.
 - Arquivo de prompts/especificacoes finais e metadados de execucao em `.yaliai/prompts/` e `.yaliai/runs/`.
-- Uso de provedores OpenAI-compatible apenas como fallback explicito; inspiracao, categorias, modelos e construcao de prompt da Yali continuam primeiro.
+- Uso de provedores OpenAI-compatible e ferramentas host-native apenas como executores fallback; inspiracao, categorias, modelos e construcao de prompt da Yali continuam primeiro.
 - Pedidos de PPT sao encaminhados para `references/ppt-generation/`.
 
 ## Install

@@ -22,9 +22,35 @@ HTTP_USER_AGENT = "Mozilla/5.0 (Yali AI Skill Runner) AppleWebKit/537.36 Chrome/
 TERMINAL_STATUSES = {"completed", "failed", "error", "cancelled", "canceled"}
 
 
-def die(message: str, code: int = 2) -> None:
-    print(json.dumps({"ok": False, "error": message}, ensure_ascii=False), file=sys.stderr)
+def die(message: str, code: int = 2, error_code: str | None = None, http_status: int | None = None) -> None:
+    payload: dict[str, Any] = {"ok": False, "error": message}
+    if error_code:
+        payload["error_code"] = error_code
+    if http_status is not None:
+        payload["http_status"] = http_status
+    print(json.dumps(payload, ensure_ascii=False), file=sys.stderr)
     raise SystemExit(code)
+
+
+def api_error_code(body: str) -> str | None:
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    for key in ("code", "error_code"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    error = payload.get("error")
+    if isinstance(error, str) and error.strip():
+        return error.strip()
+    if isinstance(error, dict):
+        value = error.get("code") or error.get("type")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
 
 
 def clean_base_url(value: str | None) -> str:
@@ -49,7 +75,7 @@ def read_prompt(prompt: str | None, prompt_file: str | None) -> str:
 def read_api_key(value: str | None) -> str:
     key = (value or os.environ.get("YALIAI_API_KEY") or "").strip()
     if not key:
-        die("YALIAI_API_KEY is not set. Configure it in the runtime environment before calling the Yali API.")
+        die("YALIAI_API_KEY is not set. Configure it in the runtime environment before calling the Yali API.", error_code="missing_api_key")
     return key
 
 
@@ -89,9 +115,10 @@ def request_json(method: str, url: str, api_key: str, payload: dict[str, Any] | 
             body = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        die(f"HTTP {exc.code} from Yali API: {body}", code=1)
+        fallback_code = "invalid_api_key" if exc.code in (401, 403) else f"http_{exc.code}"
+        die(f"HTTP {exc.code} from Yali API: {body}", code=1, error_code=api_error_code(body) or fallback_code, http_status=exc.code)
     except urllib.error.URLError as exc:
-        die(f"Yali API request failed: {exc}", code=1)
+        die(f"Yali API request failed: {exc}", code=1, error_code="network_error")
 
     try:
         parsed = json.loads(body)

@@ -8,8 +8,9 @@
 - مطابقة الأفكار مع تصنيفات وقوالب Yali.
 - تحويل الأفكار العامة إلى مطالبات GPT-image2 واضحة أو مواصفات تحرير صور.
 - يتم توليد الصور وتحريرها عبر Yali API، ويتطلب ذلك `YALIAI_API_KEY` وبيئة Python أو Node، ثم تُحفظ النتائج محليًا وتُعرض عبر Markdown بمسارات مطلقة.
+- فحص كامل قبل التنفيذ لـ Yali API و OpenAI-compatible fallback و host-native image tool و advisor mode؛ نقص المفتاح أو `401` / `invalid_api_key` لا ينهي المسار مباشرة.
 - أرشفة المطالبات النهائية ومواصفات التحرير وبيانات التشغيل في `.yaliai/prompts/` و`.yaliai/runs/`.
-- استخدام مزودات OpenAI-compatible فقط كمنفذات احتياطية صريحة؛ تبقى أمثلة Yali والتصنيفات والقوالب وبناء المطالبة هي المسار الأول.
+- استخدام OpenAI-compatible و host-native فقط كمنفذات احتياطية؛ تبقى أمثلة Yali والتصنيفات والقوالب وبناء المطالبة هي المسار الأول.
 - توجيه طلبات PPT إلى `references/ppt-generation/`.
 
 ## Install

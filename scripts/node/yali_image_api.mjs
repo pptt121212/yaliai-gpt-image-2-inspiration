@@ -16,9 +16,23 @@ const USAGE = `Usage:
 Environment:
   YALIAI_API_KEY is used when --api-key is omitted.`;
 
-function die(message, code = 2) {
-  console.error(JSON.stringify({ ok: false, error: message }));
+function die(message, code = 2, details = {}) {
+  console.error(JSON.stringify({ ok: false, error: message, ...details }));
   process.exit(code);
+}
+
+function apiErrorCode(text) {
+  try {
+    const payload = JSON.parse(text);
+    if (typeof payload?.code === "string" && payload.code.trim()) return payload.code.trim();
+    if (typeof payload?.error_code === "string" && payload.error_code.trim()) return payload.error_code.trim();
+    if (typeof payload?.error === "string" && payload.error.trim()) return payload.error.trim();
+    if (typeof payload?.error?.code === "string" && payload.error.code.trim()) return payload.error.code.trim();
+    if (typeof payload?.error?.type === "string" && payload.error.type.trim()) return payload.error.type.trim();
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 function parseArgs(argv) {
@@ -67,7 +81,7 @@ function cleanBaseUrl(value) {
 
 function readApiKey(value) {
   const key = String(value || process.env.YALIAI_API_KEY || "").trim();
-  if (!key) die("YALIAI_API_KEY is not set. Configure it in the runtime environment before calling the Yali API.");
+  if (!key) die("YALIAI_API_KEY is not set. Configure it in the runtime environment before calling the Yali API.", 2, { error_code: "missing_api_key" });
   return key;
 }
 
@@ -115,7 +129,10 @@ function requestJson(method, url, apiKey, payload) {
       res.on("end", () => {
         const text = Buffer.concat(chunks).toString("utf8");
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          reject(new Error(`HTTP ${res.statusCode} from Yali API: ${text}`));
+          const error = new Error(`HTTP ${res.statusCode} from Yali API: ${text}`);
+          error.errorCode = apiErrorCode(text) || ([401, 403].includes(res.statusCode) ? "invalid_api_key" : `http_${res.statusCode}`);
+          error.httpStatus = res.statusCode;
+          reject(error);
           return;
         }
         try {
@@ -125,8 +142,15 @@ function requestJson(method, url, apiKey, payload) {
         }
       });
     });
-    req.setTimeout(120000, () => req.destroy(new Error(`Timeout calling ${url}`)));
-    req.on("error", reject);
+    req.setTimeout(120000, () => {
+      const error = new Error(`Timeout calling ${url}`);
+      error.errorCode = "timeout";
+      req.destroy(error);
+    });
+    req.on("error", (error) => {
+      if (!error.errorCode) error.errorCode = "network_error";
+      reject(error);
+    });
     if (body) req.write(body);
     req.end();
   });
@@ -213,5 +237,5 @@ try {
   if (command === "status") await status(global, args);
   if (command === "result") await result(global, args);
 } catch (error) {
-  die(error.message || String(error), 1);
+  die(error.message || String(error), 1, { ...(error.errorCode ? { error_code: error.errorCode } : {}), ...(error.httpStatus ? { http_status: error.httpStatus } : {}) });
 }

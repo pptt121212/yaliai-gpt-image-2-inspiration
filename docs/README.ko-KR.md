@@ -9,7 +9,8 @@
 - 모호한 아이디어를 실사용 GPT-image2 프롬프트 또는 이미지 편집 사양으로 변환.
 - 이미지 생성/편집은 Yali 이미지 생성 API로 실행하며 `YALIAI_API_KEY`와 Python 또는 Node 런타임이 필요합니다. 결과는 로컬화한 뒤 절대 경로 Markdown으로 표시합니다.
 - 최종 프롬프트/사양과 실행 메타데이터를 `.yaliai/prompts/` 및 `.yaliai/runs/`에 보관.
-- OpenAI-compatible provider는 명시적 fallback 실행 수단으로만 사용합니다. Yali 영감 검색, 카테고리, 템플릿, 프롬프트 구성은 계속 우선입니다.
+- 실행 전 Yali API, OpenAI-compatible fallback, host-native 이미지 도구, advisor mode를 모두 preflight합니다. 키 누락이나 `401` / `invalid_api_key`만으로 바로 종료하지 않습니다.
+- OpenAI-compatible provider와 host-native 이미지 도구는 fallback 실행 수단으로만 사용합니다. Yali 영감 검색, 카테고리, 템플릿, 프롬프트 구성은 계속 우선입니다.
 - PPT / slides / deck 요청은 `references/ppt-generation/` 문서를 따름.
 
 ## Install

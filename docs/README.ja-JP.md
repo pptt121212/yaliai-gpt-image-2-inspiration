@@ -9,7 +9,8 @@
 - あいまいなアイデアを実用的な GPT-image2 プロンプトまたは画像編集仕様へ変換。
 - 画像生成/編集は Yali 画像生成 API で実行します。`YALIAI_API_KEY` と Python または Node ランタイムが必要で、結果をローカル化して絶対パス Markdown で表示します。
 - 最終プロンプト/仕様と実行メタデータを `.yaliai/prompts/` と `.yaliai/runs/` に保存。
-- OpenAI-compatible provider は明示的な fallback 実行手段のみ。Yali の事例検索、カテゴリ、テンプレート、プロンプト構築が常に先です。
+- 実行前に Yali API、OpenAI-compatible fallback、host-native 画像ツール、advisor mode をまとめて preflight します。キー不足や `401` / `invalid_api_key` だけで処理を終了しません。
+- OpenAI-compatible provider と host-native 画像ツールは fallback 実行手段のみ。Yali の事例検索、カテゴリ、テンプレート、プロンプト構築が常に先です。
 - PPT / slides / deck の依頼は `references/ppt-generation/` を参照。
 
 ## Install

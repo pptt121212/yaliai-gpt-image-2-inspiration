@@ -5,10 +5,10 @@ Use this file when the installed skill is asked to generate, edit, batch-create,
 The execution path is:
 
 ```text
-user request -> Yali inspiration/templates when useful -> prompt/edit spec -> prompt archive -> Yali queued API first -> localizer -> Markdown absolute local path
+user request -> Yali inspiration/templates when useful -> prompt/edit spec -> prompt archive -> provider ladder preflight -> Yali queued API first when ready -> fallback executor when needed -> localizer -> Markdown absolute local path
 ```
 
-If Yali queued API execution is unavailable, fails, or the user explicitly requests another executor, keep the Yali-built prompt/spec and use `compatible-providers.md` or advisor output as the fallback layer.
+If Yali queued API execution is unavailable, fails, or the user explicitly requests another executor, keep the Yali-built prompt/spec and use the provider ladder result to continue to compatible fallback, host-native fallback, or advisor output. A missing or invalid Yali key is not a terminal state by itself.
 
 ## Architecture Diagram
 
@@ -23,15 +23,17 @@ flowchart TD
   F --> E
   E --> G["Fetch templates when output type is explicit"]
   G --> H["Archive prompt/spec"]
-  H --> I{"Yali API ready"}
-  I -->|yes| J["Run Yali API runner"]
+  H --> I["Provider ladder preflight: Yali, compatible, host-native, advisor"]
+  I --> R{"Recommended executor"}
+  R -->|Yali API| J["Run Yali API runner"]
   J --> K["Start task -> poll status -> fetch result"]
   K --> L["Run localizer immediately"]
   L --> M["Local image file + metadata JSON + Markdown absolute path"]
-  I -->|no| N{"Fallback allowed"}
-  N -->|compatible| O["OpenAI-compatible fallback executor"]
+  R -->|Compatible allowed| O["OpenAI-compatible fallback executor"]
   O --> L
-  N -->|host/advisor| P["Host-native tool or advisor prompt/spec"]
+  R -->|Host-native available| P["Host-native image tool with Yali-built prompt/spec"]
+  P --> L
+  R -->|No executor| Q["Advisor prompt/spec with setup guidance"]
 ```
 
 ## Runtime Script Map
@@ -89,7 +91,7 @@ Inputs:
 
 Outputs:
 
-- Search: `ok`, `count`, `items[]`, `raw`.
+- Search: `ok`, `count`, `items[]`. Each item exposes one unified prompt field named `prompt`.
 - Templates: `ok`, `count`, `defaultTemplateKey`, `templatePresets`, `capabilities`, `raw`.
 - Categories/case: `ok`, `response`.
 
@@ -171,8 +173,15 @@ Outputs:
 Inspect provider readiness without calling external APIs:
 
 ```bash
-python3 scripts/python/image_provider_ladder.py --intent generation --execution-requested --json
-node scripts/node/image_provider_ladder.mjs --intent generation --execution-requested --json
+python3 scripts/python/image_provider_ladder.py --intent generation --execution-requested --host-native-available --json
+node scripts/node/image_provider_ladder.mjs --intent generation --execution-requested --host-native-available --json
+```
+
+Pass `--host-native-available` only after checking that the current host exposes its own image generation/editing tool. Pass `--host-native-unavailable` after checking that it does not. If Yali fails during this run, rerun the ladder with the returned `error_code`, for example:
+
+```bash
+python3 scripts/python/image_provider_ladder.py --intent generation --execution-requested --host-native-available --yali-error invalid_api_key --json
+node scripts/node/image_provider_ladder.mjs --intent generation --execution-requested --host-native-available --yali-error invalid_api_key --json
 ```
 
 Run OpenAI-compatible fallback only after Yali prompt construction and explicit fallback permission:
@@ -184,6 +193,8 @@ node scripts/node/compatible_image_api.mjs --allow-fallback generate --prompt "f
 
 Compatible fallback outputs OpenAI-compatible image payloads and uses the same localizer when `--no-localize` is not set.
 
+The ladder JSON must be treated as the authoritative local preflight record for this run. In particular, inspect `checked_providers[]`, `yali_api_status`, `yali_error`, `compatible_fallback_available`, `host_native_status`, `provider_order`, `recommended_mode`, and `recommended_reason`.
+
 ## Skill-First Execution Order
 
 1. Classify the task: new image, edit, batch, or PPT slide visual.
@@ -193,9 +204,9 @@ Compatible fallback outputs OpenAI-compatible image payloads and uses the same l
 5. Build a compact prompt spec with reference cases, exact visible text, size/aspect, layout, constraints, and avoid list.
 6. If retrieval is weak or unavailable, use `local-template-fallback.md` for missing-field questions, variants, and avoid rules.
 7. Archive the final prompt/edit spec and run metadata when filesystem access exists.
-8. Run preflight: key, reference images, template size, quality, polling behavior, output location, and fallback permission.
-9. Execute generation/editing through the Yali API runner first.
-10. If Yali execution cannot run and fallback is allowed, use `compatible-providers.md` with the archived Yali-built prompt/spec.
+8. Run preflight: host-native tool availability, Yali key/status, compatible fallback permission/key, reference images, template size, quality, polling behavior, and output location.
+9. Execute generation/editing through the Yali API runner first when the ladder recommends `yali-api`.
+10. If Yali execution cannot run or returns a blocking error, rerun the ladder with `--yali-error <code>` and continue to compatible fallback, host-native fallback, or advisor output according to `recommended_mode`.
 11. Localize finished image URLs, base64 payloads, or local files.
 12. Report the Yali task/result fields or fallback result fields plus prompt archive, localized absolute path, and Markdown preview.
 
@@ -208,7 +219,7 @@ Choose one mode before execution:
 | Public retrieval | examples, prompts, categories, case details, or templates | network access | case/template data and prompt guidance |
 | Yali queued API | generated or edited image files are requested | `YALIAI_API_KEY` and Python or Node | task metadata, result URL, localized image path and Markdown |
 | Compatible fallback executor | Yali execution is unavailable, fails, or user explicitly asks for compatible fallback | explicit permission or `YALIAI_ALLOW_COMPAT_PROVIDER=1`, compatible provider key | OpenAI-compatible result payload plus localized image path and Markdown |
-| Host-native fallback | Yali execution is unavailable and the current host has its own image tool | host image tool | host result plus archived Yali-built prompt/spec |
+| Host-native fallback | Yali execution is unavailable and the current host has its own image tool | host image tool visible in the current tool list | host result plus archived Yali-built prompt/spec |
 | Prompt/spec output | the user asks only for prompts or inspiration | none | final prompt/edit spec and reference context |
 | Setup-needed advisor mode | generated or edited image files were requested but no executor is available | none | final prompt/edit spec plus concrete setup guidance |
 | PPT branch | PPT, slides, deck, presentation, or multi-slide report | depends on chosen local PPT workflow and Yali setup | slide plan, slide prompts, generated images when setup is complete, and packaged artifacts |
@@ -230,14 +241,15 @@ Before any generation or editing call, verify:
 1. Intent is generation, edit, batch, or PPT slide image.
 2. Retrieval is complete or intentionally skipped.
 3. Live templates were fetched for clear template-shaped tasks; selected `template_key` or `none` is explicit.
-4. `YALIAI_API_KEY` exists for Yali API calls, or fallback permission is explicit.
-5. Edits have 1-2 reference images; each image is PNG, JPEG, or WEBP and under 5MB for the Yali API.
-6. Prompt/edit spec includes exact visible text, size/aspect, quality, constraints, and edit invariants.
-7. Prompt/spec archive path is ready when filesystem access exists.
-8. The final display plan uses the localizer's absolute local path and Markdown preview.
-9. API keys stay in the runtime environment or approved local secret store.
+4. Host-native image tool availability has been checked and passed to `image_provider_ladder`.
+5. `image_provider_ladder` output includes `checked_providers[]`, Yali API status/error, compatible fallback status, host-native status, provider order, recommended mode, and recommendation reason.
+6. Edits have 1-2 reference images; each image is PNG, JPEG, or WEBP and under 5MB for the Yali API.
+7. Prompt/edit spec includes exact visible text, size/aspect, quality, constraints, and edit invariants.
+8. Prompt/spec archive path is ready when filesystem access exists.
+9. The final display plan uses the localizer's absolute local path and Markdown preview.
+10. API keys stay in the runtime environment or approved local secret store.
 
-When a required item is missing, return the archived prompt/edit spec plus the concrete setup item needed.
+When Yali returns `missing_api_key`, `invalid_api_key`, `insufficient_credits`, `rate_limited`, `timeout`, `network_error`, or `queue_error`, rerun `image_provider_ladder` with `--yali-error <code>` and continue to compatible fallback, host-native fallback, or advisor output according to the new recommendation.
 
 ## Retrieval Before Execution
 

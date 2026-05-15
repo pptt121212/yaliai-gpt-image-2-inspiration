@@ -80,12 +80,7 @@ function getJson(url) {
 
 function normalizeSearch(payload) {
   const items = payload?.items || payload?.response?.items || [];
-  const promptFor = (item) => {
-    for (const key of ["prompt", "prompt_excerpt", "prompt_zh", "prompt_en"]) {
-      if (typeof item[key] === "string" && item[key].trim()) return item[key].trim();
-    }
-    return "";
-  };
+  const promptFor = (item) => (typeof item.prompt === "string" ? item.prompt.trim() : "");
   return {
     ok: true,
     count: Array.isArray(items) ? items.length : 0,
@@ -102,7 +97,6 @@ function normalizeSearch(payload) {
       detail_url: item.detail_url,
       source: item.source,
     })) : [],
-    raw: payload,
   };
 }
 

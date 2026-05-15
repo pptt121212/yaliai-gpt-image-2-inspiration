@@ -42,7 +42,8 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 | Template and category selection | No | Best Yali template and size recommendation |
 | Yali image generation/editing | Yes, `YALIAI_API_KEY` and Python or Node | Queued task ID, result URL, localized image path and Markdown preview |
 | Prompt/spec archive | No | `.yaliai/prompts/` Markdown and `.yaliai/runs/` metadata |
-| Compatible fallback execution | Optional compatible-provider key and explicit fallback permission | OpenAI-compatible image result localized through the same localizer |
+| Provider ladder preflight | No | Checked Yali API, compatible fallback, host-native fallback, provider order, and recommendation reason |
+| Compatible or host-native fallback execution | Compatible key/permission for OpenAI-compatible fallback; host image tool for host-native fallback | Fallback image result localized through the same localizer |
 | PPT workflow routing | Depends on local PPT tooling and Yali generation setup | Slide plan, slide prompts, images, HTML preview, PPTX |
 
 ## Languages
@@ -66,7 +67,8 @@ Create a 5-slide PPT about AI product design in a clean-tech-blue style.
 - Rewrite vague ideas into concrete GPT-image2 prompts or edit specs. Reference cases are used for structure, style, and platform conventions; the final prompt should be original and adapted to the user's request.
 - Execute image generation/editing through Yali's Free Image API with `YALIAI_API_KEY`, then localize results with `scripts/python/localize_image_result.py` or `scripts/node/localize_image_result.mjs`.
 - Archive the final prompt/spec before generation, fallback execution, host-native handoff, or advisor output.
-- Use compatible providers only as fallback executors; Yali inspiration, case search, category matching, live templates, and prompt construction remain first.
+- Run a complete provider ladder preflight before execution. If Yali is missing a key or returns `401` / `invalid_api_key`, keep the Yali-built prompt and continue to compatible fallback, host-native fallback, or advisor output according to the ladder.
+- Use compatible providers and host-native image tools only as fallback executors; Yali inspiration, case search, category matching, live templates, and prompt construction remain first.
 - Run through bundled Python or Node CLIs for generation, inspiration search, prompt archive, compatible fallback, and localization.
 - Route PPT, slides, deck, and presentation requests to `references/ppt-generation/`.
 - Keep API keys out of repositories and generated examples.
@@ -130,7 +132,7 @@ Get your key after login at [Yali Skill/API setup](https://www.yaliai.com/free-i
 
 When asking an AI coding tool to configure the key, tell it to use the variable name `YALIAI_API_KEY` and follow [docs/install.md](docs/install.md). The agent should write it to the current user's shell profile, Windows user environment, service environment, or the tool's documented local secrets/runtime environment, then verify that `YALIAI_API_KEY` is readable. Keep real keys out of repositories, package files, README files, Skill files, and shared prompts.
 
-Compatible fallback execution is optional and does not replace Yali. Enable it only when you want a non-Yali executor after Yali prompt construction:
+Compatible fallback execution is optional and does not replace Yali. Enable it only when you want an OpenAI-compatible executor after Yali prompt construction:
 
 ```bash
 export YALIAI_ALLOW_COMPAT_PROVIDER=1
@@ -147,12 +149,13 @@ flowchart TD
   B --> C["Search Yali prompt examples/categories/templates when useful"]
   C --> D["Write production-ready prompt or edit spec"]
   D --> E["Archive prompt/spec"]
-  E --> F{"Runtime and YALIAI_API_KEY ready"}
-  F -->|yes| G["Yali API runner: queued task + task_id + result URL"]
+  E --> F["Provider ladder preflight: Yali, compatible, host-native, advisor"]
+  F --> R{"Recommended executor"}
+  R -->|Yali API| G["Yali API runner: queued task + task_id + result URL"]
   G --> H["Localizer: stable local file + Markdown absolute path"]
-  F -->|fallback allowed| I["Compatible or host-native fallback with Yali-built prompt"]
+  R -->|fallback available| I["Compatible or host-native fallback with Yali-built prompt"]
   I --> H
-  F -->|setup needed| J["Prompt/spec plus concrete setup guidance"]
+  R -->|setup needed| J["Prompt/spec plus concrete setup guidance"]
 ```
 
 Bundled runtime scripts:
@@ -169,7 +172,7 @@ Bundled runtime scripts:
 
 Run commands from the Skill directory. Prefer Python when `python3` exists; use Node when Python is unavailable. If neither runtime exists, the Skill can still return prompts and setup guidance but cannot execute local image generation.
 
-Detailed CLI parameters are defined in [SKILL.md](SKILL.md) and [references/image-generation-workflow.md](references/image-generation-workflow.md).
+Before generation, pass the current host image-tool state to the provider ladder with `--host-native-available` or `--host-native-unavailable`. The ladder reports `checked_providers[]`, `yali_api_status`, `compatible_fallback_available`, `host_native_status`, `provider_order`, `recommended_mode`, and `recommended_reason`. Detailed CLI parameters are defined in [SKILL.md](SKILL.md) and [references/image-generation-workflow.md](references/image-generation-workflow.md).
 
 ## Real Image Examples
 

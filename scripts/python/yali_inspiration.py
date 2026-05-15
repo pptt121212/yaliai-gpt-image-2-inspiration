@@ -50,12 +50,7 @@ def normalize_search(payload: dict[str, Any]) -> dict[str, Any]:
     for item in items:
         if not isinstance(item, dict):
             continue
-        prompt = ""
-        for key in ("prompt", "prompt_excerpt", "prompt_zh", "prompt_en"):
-            value = item.get(key)
-            if isinstance(value, str) and value.strip():
-                prompt = value.strip()
-                break
+        prompt = item.get("prompt").strip() if isinstance(item.get("prompt"), str) else ""
         normalized.append(
             {
                 "case_id": item.get("case_id"),
@@ -71,7 +66,7 @@ def normalize_search(payload: dict[str, Any]) -> dict[str, Any]:
                 "source": item.get("source"),
             }
         )
-    return {"ok": True, "count": len(normalized), "items": normalized, "raw": payload}
+    return {"ok": True, "count": len(normalized), "items": normalized}
 
 
 def normalize_templates(payload: dict[str, Any]) -> dict[str, Any]:

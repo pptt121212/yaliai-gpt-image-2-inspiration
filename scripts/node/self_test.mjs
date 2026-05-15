@@ -177,6 +177,7 @@ checks.push(run("node-yali-api-help", "node", ["scripts/node/yali_image_api.mjs"
 checks.push(run("node-inspiration-help", "node", ["scripts/node/yali_inspiration.mjs", "--help"]));
 checks.push(run("node-localizer-help", "node", ["scripts/node/localize_image_result.mjs", "--help"]));
 checks.push(run("node-provider-ladder-help", "node", ["scripts/node/image_provider_ladder.mjs", "--json"]));
+checks.push(run("node-provider-ladder-host-native", "node", ["scripts/node/image_provider_ladder.mjs", "--intent", "generation", "--execution-requested", "--host-native-available", "--yali-error", "invalid_api_key", "--json"]));
 checks.push(run("node-archive-prompt-dry-run", "node", ["scripts/node/archive_prompt.mjs", "--title", "Test prompt", "--provider-mode", "advisor", "--intent", "prompt", "--prompt", "test prompt", "--dry-run"]));
 checks.push(run("node-compatible-fallback-dry-run", "node", ["scripts/node/compatible_image_api.mjs", "--allow-fallback", "generate", "--prompt", "test prompt", "--dry-run"]));
 checks.push(run("node-yali-api-dry-run", "node", ["scripts/node/yali_image_api.mjs", "generate", "--prompt", "测试小猫", "--quality", "medium", "--size-key", "1024x1024", "--dry-run"]));
@@ -184,6 +185,7 @@ checks.push(run("node-inspiration-dry-run", "node", ["scripts/node/yali_inspirat
 if (commandExists("python3")) {
   checks.push(run("python-localizer-self-test", "python3", ["scripts/python/localize_image_result.py", "--self-test"]));
   checks.push(run("python-provider-ladder-help", "python3", ["scripts/python/image_provider_ladder.py", "--json"]));
+  checks.push(run("python-provider-ladder-host-native", "python3", ["scripts/python/image_provider_ladder.py", "--intent", "generation", "--execution-requested", "--host-native-available", "--yali-error", "invalid_api_key", "--json"]));
   checks.push(run("python-archive-prompt-dry-run", "python3", ["scripts/python/archive_prompt.py", "--title", "Test prompt", "--provider-mode", "advisor", "--intent", "prompt", "--prompt", "test prompt", "--dry-run"]));
   checks.push(run("python-compatible-fallback-dry-run", "python3", ["scripts/python/compatible_image_api.py", "--allow-fallback", "generate", "--prompt", "test prompt", "--dry-run"]));
   checks.push(run("python-yali-api-dry-run", "python3", ["scripts/python/yali_image_api.py", "generate", "--prompt", "测试小猫", "--quality", "medium", "--size-key", "1024x1024", "--dry-run"]));

@@ -8,8 +8,9 @@ Bildgenerierung, Bildbearbeitung, Bild-Prompt-Schreiben, Referenzbild-Erzeugung 
 - Zuordnung zu Yali-Kategorien und Vorlagen.
 - Umwandlung vager Ideen in konkrete GPT-image2 Prompts oder Bearbeitungsspezifikationen.
 - Bildgenerierung/-bearbeitung ueber die Yali API; erfordert `YALIAI_API_KEY` und Python oder Node, danach lokalisierte Ergebnisse und Markdown-Vorschau mit absoluten Pfaden.
+- Vollstaendige Provider-Preflight-Pruefung fuer Yali API, OpenAI-compatible Fallback, host-native Bildwerkzeug und Advisor-Modus; fehlender Key oder `401` / `invalid_api_key` beendet den Ablauf nicht sofort.
 - Archivierung finaler Prompts/Spezifikationen und Run-Metadaten unter `.yaliai/prompts/` und `.yaliai/runs/`.
-- OpenAI-compatible Provider nur als explizite Fallback-Ausfuehrer; Yali-Inspiration, Kategorien, Templates und Prompt-Konstruktion bleiben zuerst.
+- OpenAI-compatible Provider und host-native Bildwerkzeuge nur als Fallback-Ausfuehrer; Yali-Inspiration, Kategorien, Templates und Prompt-Konstruktion bleiben zuerst.
 - PPT-Anfragen werden an `references/ppt-generation/` weitergeleitet.
 
 ## Install

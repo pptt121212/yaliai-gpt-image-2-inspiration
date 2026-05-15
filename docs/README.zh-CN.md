@@ -8,7 +8,8 @@
 - 按 Yali 分类和模板匹配用户需求。
 - 将模糊想法改写为可直接生成的 GPT-image2 提示词或图片编辑规格。
 - 图像生成/编辑通过 Yali 图像生成 API 执行，需要 `YALIAI_API_KEY` 和 Python 或 Node 运行时，并通过本地化脚本输出 Markdown 绝对路径预览。
-- 兼容 OpenAI 风格图像接口只作为后备执行器；Yali 灵感检索、案例参考、分类匹配、模板判断和提示词构建仍然优先。
+- 执行前完整预检 Yali API、OpenAI 兼容后备、host-native 图像工具和 advisor 模式；缺少 Key 或 `401` / `invalid_api_key` 不直接结束，会继续按预检推荐路由。
+- OpenAI 兼容接口和 host-native 图像工具只作为后备执行器；Yali 灵感检索、案例参考、分类匹配、模板判断和提示词构建仍然优先。
 - 最终提示词和运行元数据默认归档到 `.yaliai/prompts/` 与 `.yaliai/runs/`。
 - 当用户提到 PPT、slides、deck、演示文稿时，读取 `references/ppt-generation/` 执行本地 PPT 工作流。
 

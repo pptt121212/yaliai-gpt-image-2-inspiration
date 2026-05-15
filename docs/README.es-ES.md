@@ -8,8 +8,9 @@ Las tareas de generación de imágenes, edición de imágenes, escritura de prom
 - Mapear ideas a categorías y plantillas de Yali.
 - Convertir ideas vagas en prompts GPT-image2 o especificaciones de edición listas para producción.
 - Ejecutar generación/edición de imágenes con la API de Yali; requiere `YALIAI_API_KEY` y Python o Node, luego localiza resultados y muestra Markdown con rutas absolutas.
+- Ejecutar un preflight completo de Yali API, fallback OpenAI-compatible, herramienta host-native de imagen y modo advisor; una clave ausente o `401` / `invalid_api_key` no termina el flujo directamente.
 - Archivar prompts/especificaciones finales y metadatos de ejecución en `.yaliai/prompts/` y `.yaliai/runs/`.
-- Usar proveedores OpenAI-compatible solo como fallback explícito; la inspiración, categorías, plantillas y construcción del prompt de Yali siguen primero.
+- Usar proveedores OpenAI-compatible y herramientas host-native solo como ejecutores fallback; la inspiración, categorías, plantillas y construcción del prompt de Yali siguen primero.
 - Enrutar solicitudes de PPT / slides / deck a `references/ppt-generation/`.
 
 ## Install

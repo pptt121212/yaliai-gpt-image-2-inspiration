@@ -57,10 +57,12 @@ Report provider mode as `compatible fallback executor`, include the prompt archi
 
 ## Failure Handling
 
-If compatible fallback is not explicitly allowed, return advisor output:
+If compatible fallback is not explicitly allowed or not configured, do not treat that as the end of the execution ladder. Re-run `image_provider_ladder` with the Yali error code and the checked host-native state. Use host-native fallback if the current agent environment exposes an image tool; otherwise return advisor output:
 
 - final prompt/edit spec
 - prompt archive path
 - exact missing setup item, such as `YALIAI_API_KEY` or `YALIAI_ALLOW_COMPAT_PROVIDER=1`
 
 If compatible execution fails, do not retry blindly across multiple providers. Report the failed endpoint, status/error text, prompt archive path, and next setup action.
+
+If Yali fails and compatible fallback is unavailable, re-run the provider ladder with the returned Yali error code and check whether a host-native image tool is available. Use the host-native fallback only if the current agent environment explicitly exposes that tool; otherwise return advisor output.
